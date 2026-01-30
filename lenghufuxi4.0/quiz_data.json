@@ -1,0 +1,18 @@
+{
+  "rankings": [
+    {
+      "name": "杨易华",
+      "score": 20,
+      "correctCount": 20,
+      "time": 20,
+      "date": "2026-01-30T07:55:37.600Z"
+    },
+    {
+      "name": "李万翔",
+      "score": 3,
+      "correctCount": 3,
+      "time": 41,
+      "date": "2026-01-30T14:16:37.496Z"
+    }
+  ]
+}
