@@ -1,0 +1,2865 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>冷湖知识复习系统</title>
+    <link rel="stylesheet" href="quiz-style.css">
+</head>
+<body>
+    <!-- 音频元素 -->
+    <audio id="background-music" loop autoplay volume="0.3">
+        <source src="https://assets.mixkit.co/music/preview/mixkit-ambient-background-tech-1460.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="correct-sound" volume="0.5">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-correct-answer-tone-2870.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="wrong-sound" volume="0.5">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-wrong-answer-fail-notification-946.mp3" type="audio/mpeg">
+    </audio>
+    
+    <!-- 音效反馈层 -->
+    <div id="feedback-overlay" class="feedback-overlay"></div>
+    
+    <!-- 冷湖实验室风格背景效果 -->
+    <div class="background-effects">
+        <div class="star-background"></div>
+        <div class="grid-background"></div>
+        <div class="particles-container"></div>
+    </div>
+    
+    <div class="container">
+        <header>
+            <h1>冷湖知识复习系统</h1>
+        </header>
+        
+        <main>
+            <!-- 登录界面 -->
+            <section id="login-section" class="section active">
+                <h2>登录</h2>
+                
+                <div class="auth-form">
+                    <div class="form-group">
+                        <label for="login-username">用户名：</label>
+                        <input type="text" id="login-username" placeholder="请输入用户名" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="login-password">密码：</label>
+                        <input type="password" id="login-password" placeholder="请输入6位数字密码" required maxlength="6">
+                    </div>
+                    <div class="auth-actions">
+                        <button id="login-btn" class="btn btn-primary">登录</button>
+                        <p>还没有账号？<a href="#" id="go-to-register">点击注册</a></p>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 注册界面 -->
+            <section id="register-section" class="section">
+                <h2>注册</h2>
+                
+                <div class="auth-form">
+                    <div class="form-group">
+                        <label for="register-name">姓名：</label>
+                        <input type="text" id="register-name" placeholder="请输入您的姓名" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="register-password">密码：</label>
+                        <input type="password" id="register-password" placeholder="请输入6位数字密码" required maxlength="6">
+                    </div>
+                    <div class="auth-actions">
+                        <button id="register-btn" class="btn btn-primary">注册</button>
+                        <p>已有账号？<a href="#" id="go-to-login">点击登录</a></p>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 知识点选择界面 -->
+            <section id="knowledge-section" class="section">
+                <!-- 欢迎信息 -->
+                <div class="welcome-message">
+                    <h3>欢迎 <span id="welcome-user-name">用户名</span>！</h3>
+                </div>
+                
+                <h2>选择知识点</h2>
+                
+                <div class="knowledge-selection-container">
+                    <div class="selection-card">
+                        <h3>选择章节</h3>
+                        <p>通过章节选择来确定要答题的知识点范围</p>
+                        <button id="select-chapter-btn" class="btn btn-primary">选择章节</button>
+                    </div>
+                </div>
+                
+                <div class="main-controls">
+                    <button id="ranking-btn" class="btn btn-secondary">查看排行榜</button>
+                    <button id="manage-knowledge-btn" class="btn btn-info">管理题库</button>
+                    <button id="manage-chapters-btn" class="btn btn-info">管理章节</button>
+                    <button id="host-management-btn" class="btn btn-warning">主机管理</button>
+                    <button id="show-network-address-btn" class="btn btn-primary">查看网络访问地址</button>
+                    <button id="logout-btn" class="btn btn-danger">注销</button>
+                </div>
+            </section>
+            
+            <!-- 章节管理界面 -->
+            <section id="chapter-management-section" class="section">
+                <h2>章节管理</h2>
+                
+                <div class="chapter-management-controls">
+                    <button id="back-to-main-from-chapter" class="btn btn-secondary">返回主界面</button>
+                    <button id="logout-btn-chapter" class="btn btn-danger">注销</button>
+                </div>
+                
+                <!-- 章节管理主界面 -->
+                <div id="chapter-main-view" class="chapter-view active">
+                    <div class="chapter-actions-container">
+                        <div class="action-card">
+                            <h3>添加课程</h3>
+                            <p>创建新的第一级课程章节</p>
+                            <button id="add-level1-chapter-btn" class="btn btn-success">添加课程</button>
+                        </div>
+                        <div class="action-card">
+                            <h3>管理现有章节</h3>
+                            <p>查看和编辑已有的章节</p>
+                            <button id="view-chapters-btn" class="btn btn-primary">查看章节</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 章节列表界面 -->
+                <div id="chapter-list-view" class="chapter-view">
+                    <h3>章节列表</h3>
+                    <button id="back-to-chapter-main" class="btn btn-secondary">返回管理首页</button>
+                    <!-- 章节列表 -->
+                    <div class="chapter-list" id="chapter-list">
+                        <!-- 章节列表将通过JavaScript动态生成 -->
+                    </div>
+                </div>
+                
+                <!-- 章节编辑界面 -->
+                <div id="chapter-edit-view" class="chapter-view">
+                    <h3 id="chapter-form-title">添加课程</h3>
+                    <button id="back-to-chapter-list" class="btn btn-secondary">返回章节列表</button>
+                    <div class="chapter-form">
+                        <input type="hidden" id="chapter-id" value="">
+                        <div class="form-group">
+                            <label for="chapter-name">章节名称：</label>
+                            <input type="text" id="chapter-name" placeholder="请输入章节名称" required>
+                        </div>
+                        <div class="form-group" id="parent-chapter-group" style="display: none;">
+                            <label for="parent-chapter">上级章节：</label>
+                            <select id="parent-chapter">
+                                <!-- 上级章节选项将通过JavaScript动态生成 -->
+                            </select>
+                        </div>
+                        <div class="form-actions">
+                            <button id="save-chapter-btn" class="btn btn-primary">保存</button>
+                            <button id="cancel-chapter-edit-btn" class="btn btn-secondary">取消</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 章节选择界面 -->
+            <section id="chapter-selection-section" class="section">
+                <h2>选择章节</h2>
+                
+                <!-- 第一级章节选择 -->
+                <div class="chapter-selection">
+                    <h3>选择课程</h3>
+                    <div class="chapter-grid" id="first-level-chapters">
+                        <!-- 第一级章节将通过JavaScript动态生成 -->
+                    </div>
+                </div>
+                
+                <div class="main-controls">
+                    <button id="back-from-chapter-selection" class="btn btn-secondary">返回</button>
+                </div>
+            </section>
+            
+            <!-- 课程选择界面 -->
+        <section id="lesson-selection-section" class="section">
+            <h2>选择课程</h2>
+            
+            <!-- 第二级章节选择 -->
+            <div class="chapter-selection">
+                <h3>选择课程</h3>
+                <div class="chapter-grid" id="second-level-chapters">
+                    <!-- 第二级章节将通过JavaScript动态生成 -->
+                </div>
+            </div>
+            
+            <div class="main-controls">
+                <button id="back-from-lesson-selection" class="btn btn-secondary">返回</button>
+            </div>
+        </section>
+            
+            <!-- 题库管理界面 -->
+            <section id="knowledge-management-section" class="section">
+                <h2>题库管理</h2>
+                
+                <div class="knowledge-management-controls">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="first-level-chapter">选择章节：</label>
+                            <select id="first-level-chapter">
+                                <option value="">所有章节</option>
+                                <!-- 一级章节选项将通过JavaScript动态生成 -->
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="second-level-chapter">选择课程：</label>
+                            <select id="second-level-chapter">
+                                <option value="">所有课程</option>
+                                <!-- 二级章节选项将通过JavaScript动态生成 -->
+                            </select>
+                        </div>
+                    </div>
+                    <button id="add-knowledge-btn" class="btn btn-success">添加知识点</button>
+                    <button id="back-to-main-btn" class="btn btn-secondary">返回主界面</button>
+                    <button id="logout-btn-km" class="btn btn-danger">注销</button>
+                </div>
+                
+                <!-- 知识点列表 -->
+                <div class="knowledge-list" id="knowledge-list">
+                    <!-- 知识点列表将通过JavaScript动态生成 -->
+                </div>
+                
+                <!-- 知识点编辑表单 -->
+                <div class="knowledge-form" id="knowledge-form" style="display: none;">
+                    <h3 id="form-title">添加知识点</h3>
+                    <input type="hidden" id="knowledge-id" value="">
+                    <div class="form-group">
+                        <label for="knowledge-title">标题：</label>
+                        <input type="text" id="knowledge-title" placeholder="知识点标题" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="knowledge-content">内容：</label>
+                        <textarea id="knowledge-content" placeholder="知识点详细内容" rows="4" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="knowledge-category">分类：</label>
+                        <input type="text" id="knowledge-category" placeholder="知识点分类" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="knowledge-chapter-edit">所属章节：</label>
+                        <select id="knowledge-chapter-edit">
+                            <option value="">未分类</option>
+                            <!-- 章节选项将通过JavaScript动态生成 -->
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="knowledge-image">图片URL：</label>
+                        <input type="text" id="knowledge-image" placeholder="知识点图片URL（可选）">
+                    </div>
+                    <div class="form-actions">
+                        <button id="save-knowledge-btn" class="btn btn-primary">保存</button>
+                        <button id="cancel-edit-btn" class="btn btn-secondary">取消</button>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 排行榜界面 -->
+            <section id="ranking-section" class="section">
+                <h2>排行榜</h2>
+                
+                <!-- 排名显示 -->
+                <div class="ranking-section">
+                    <h3>排行榜</h3>
+                    <ul id="ranking-list-full" class="ranking-list">
+                        <!-- 排名将通过JavaScript动态生成 -->
+                    </ul>
+                </div>
+                
+                <div class="admin-controls" id="admin-controls">
+                    <button id="clear-rankings-btn" class="btn btn-danger">清空排行榜</button>
+                </div>
+                
+                <button id="logout-btn-ranking" class="btn btn-danger">注销</button>
+                <button id="back-btn" class="btn">返回</button>
+            </section>
+            
+            <!-- 答题界面 -->
+            <section id="quiz-section" class="section">
+                <div class="quiz-header">
+                    <div class="progress">
+                        <span id="question-count">第 1 题 / 5 题</span>
+                    </div>
+                    <div class="timer">
+                        <span id="timer">30</span>秒
+                    </div>
+                </div>
+                
+                <div class="question">
+                    <h3 id="question-text">加载中...</h3>
+                </div>
+                
+                <div class="options" id="options-container">
+                    <!-- 选项将通过JavaScript动态生成 -->
+                </div>
+                
+                <div class="quiz-controls">
+                    <button id="prev-btn" class="btn btn-secondary">上一题</button>
+                    <button id="next-btn" class="btn btn-primary">下一题</button>
+                    <button id="submit-btn" class="btn btn-success">提交答案</button>
+                    <button id="logout-btn-quiz" class="btn btn-danger">注销</button>
+                </div>
+            </section>
+            
+            <!-- 结果界面 -->
+            <section id="result-section" class="section">
+                <h2>答题结果</h2>
+                
+                <!-- 积分显示 -->
+                <div class="score-section">
+                    <h3>本次得分</h3>
+                    <div id="current-score" class="score-display">0</div>
+                    <div id="total-score" style="margin-top: 10px; font-size: 1.2rem;">本次得分: <span id="total-score-value">0</span></div>
+                </div>
+                
+                <div class="result-stats">
+                    <div class="stat-item">
+                        <span class="stat-label">总题数:</span>
+                        <span id="total-questions" class="stat-value">10</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">正确题数:</span>
+                        <span id="correct-answers" class="stat-value">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">正确率:</span>
+                        <span id="accuracy" class="stat-value">0%</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">用时:</span>
+                        <span id="total-time" class="stat-value">0</span>秒
+                    </div>
+                </div>
+                
+                <!-- 错题解析 -->
+                <div class="wrong-questions-section">
+                    <h3>错题解析</h3>
+                    <div id="wrong-questions-list" class="wrong-questions-list">
+                        <!-- 错题解析将通过JavaScript动态生成 -->
+                    </div>
+                </div>
+                
+                <!-- 排名显示 -->
+                <div class="ranking-section">
+                    <h3>排行榜</h3>
+                    <ul id="ranking-list" class="ranking-list">
+                        <!-- 排名将通过JavaScript动态生成 -->
+                    </ul>
+                </div>
+                
+                <button id="logout-btn-result" class="btn btn-danger">注销</button>
+                <button id="restart-btn" class="btn">重新开始</button>
+            </section>
+            
+            <!-- 主机管理界面 -->
+            <section id="host-management-section" class="section">
+                <h2>主机管理</h2>
+                
+                <div class="host-management-controls">
+                    <button id="back-to-main-from-host" class="btn btn-secondary">返回主界面</button>
+                    <button id="logout-btn-host" class="btn btn-danger">注销</button>
+                </div>
+                
+                <!-- 用户列表 -->
+                <div class="user-list-container">
+                    <h3>用户列表</h3>
+                    <div class="user-list" id="user-list">
+                        <!-- 用户列表将通过JavaScript动态生成 -->
+                    </div>
+                </div>
+                
+                <!-- 课程权限管理 -->
+                <div class="course-permission-container" id="course-permission-container" style="display: none;">
+                    <h3>课程权限管理</h3>
+                    <div id="user-info" class="user-info">
+                        <!-- 用户信息将通过JavaScript动态生成 -->
+                    </div>
+                    <div class="course-permission-form">
+                        <h4>选择可访问的课程</h4>
+                        <div class="course-list" id="course-list">
+                            <!-- 课程列表将通过JavaScript动态生成 -->
+                        </div>
+                        <div class="form-actions">
+                            <button id="save-permissions-btn" class="btn btn-primary">保存权限</button>
+                            <button id="cancel-permissions-btn" class="btn btn-secondary">取消</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+    
+    <script>
+        // 服务器API地址 - 使用新的端口
+        const API_BASE_URL = 'http://' + window.location.hostname + ':9000';
+        
+        // 全局变量
+        let currentQuestions = [];
+        let timer = 30;
+        let timerInterval = null;
+        let quizStartTime = null;
+        let hasStartedQuiz = false;
+        let currentQuizScore = 0;
+        let currentSelectedChapterId = null; // 跟踪当前选中的章节ID
+        let selectedKnowledge = null; // 跟踪当前选中的知识点/章节
+        
+        // 音频元素
+        const backgroundMusic = document.getElementById('background-music');
+        const correctSound = document.getElementById('correct-sound');
+        const wrongSound = document.getElementById('wrong-sound');
+        const feedbackOverlay = document.getElementById('feedback-overlay');
+        
+        // 播放音效函数
+        function playSound(sound) {
+            try {
+                sound.currentTime = 0;
+                sound.play();
+            } catch (error) {
+                console.error('音效播放失败:', error);
+            }
+        }
+        
+        // 显示反馈效果
+        function showFeedback(isCorrect) {
+            if (isCorrect) {
+                feedbackOverlay.className = 'feedback-overlay active correct';
+                playSound(correctSound);
+            } else {
+                feedbackOverlay.className = 'feedback-overlay active wrong';
+                playSound(wrongSound);
+            }
+            
+            // 1秒后隐藏反馈
+            setTimeout(() => {
+                feedbackOverlay.classList.remove('active');
+            }, 1000);
+        }
+        
+        // DOM元素
+        // 登录注册相关
+        const loginSection = document.getElementById('login-section');
+        const registerSection = document.getElementById('register-section');
+        const loginBtn = document.getElementById('login-btn');
+        const registerBtn = document.getElementById('register-btn');
+        const goToRegisterBtn = document.getElementById('go-to-register');
+        const goToLoginBtn = document.getElementById('go-to-login');
+        const loginUsernameInput = document.getElementById('login-username');
+        const loginPasswordInput = document.getElementById('login-password');
+        const registerNameInput = document.getElementById('register-name');
+        const registerPasswordInput = document.getElementById('register-password');
+        
+        // 添加调试信息，检查DOM元素是否存在
+        console.log('loginSection:', loginSection);
+        console.log('registerSection:', registerSection);
+        console.log('loginBtn:', loginBtn);
+        console.log('registerBtn:', registerBtn);
+        console.log('goToRegisterBtn:', goToRegisterBtn);
+        console.log('goToLoginBtn:', goToLoginBtn);
+        
+        // 知识点选择界面
+        const userNameInput = document.getElementById('user-name');
+        let USER_NAME;
+        
+        // 生成或获取用户名字
+        function initUser() {
+            // 从本地存储获取用户名字
+            const storedName = localStorage.getItem('quizUserName');
+            if (storedName) {
+                USER_NAME = storedName;
+                if (userNameInput) {
+                    userNameInput.value = storedName;
+                }
+            } else {
+                // 默认用户名
+                USER_NAME = '匿名用户';
+            }
+        }
+        
+        // 更新用户名字
+        function updateUserName() {
+            if (userNameInput) {
+                const inputName = userNameInput.value.trim();
+                if (inputName) {
+                    USER_NAME = inputName;
+                    localStorage.setItem('quizUserName', inputName);
+                } else {
+                    USER_NAME = '匿名用户';
+                    localStorage.removeItem('quizUserName');
+                }
+            }
+        }
+        
+        // DOM元素
+        const knowledgeSection = document.getElementById('knowledge-section');
+        const quizSection = document.getElementById('quiz-section');
+        const resultSection = document.getElementById('result-section');
+        const rankingSection = document.getElementById('ranking-section');
+        const knowledgeManagementSection = document.getElementById('knowledge-management-section');
+        const chapterManagementSection = document.getElementById('chapter-management-section');
+        const chapterSelectionSection = document.getElementById('chapter-selection-section');
+        const knowledgeItems = document.querySelectorAll('.knowledge-item');
+        const startBtn = document.getElementById('start-btn');
+        const rankingBtn = document.getElementById('ranking-btn');
+        // 移除全局backBtn变量声明，在函数内部动态获取
+        const clearRankingsBtn = document.getElementById('clear-rankings-btn');
+        const adminControls = document.getElementById('admin-controls');
+        const manageKnowledgeBtn = document.getElementById('manage-knowledge-btn');
+        const manageChaptersBtn = document.getElementById('manage-chapters-btn');
+        const addKnowledgeBtn = document.getElementById('add-knowledge-btn');
+        const backToMainBtn = document.getElementById('back-to-main-btn');
+        const knowledgeList = document.getElementById('knowledge-list');
+        const knowledgeForm = document.getElementById('knowledge-form');
+        const formTitle = document.getElementById('form-title');
+        const knowledgeId = document.getElementById('knowledge-id');
+        const knowledgeTitle = document.getElementById('knowledge-title');
+        const knowledgeContent = document.getElementById('knowledge-content');
+        const knowledgeCategory = document.getElementById('knowledge-category');
+        const knowledgeImage = document.getElementById('knowledge-image');
+        const knowledgeChapter = document.getElementById('knowledge-chapter');
+        const knowledgeChapterEdit = document.getElementById('knowledge-chapter-edit');
+        const saveKnowledgeBtn = document.getElementById('save-knowledge-btn');
+        const cancelEditBtn = document.getElementById('cancel-edit-btn');
+        const questionText = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+        const questionCount = document.getElementById('question-count');
+        const timerElement = document.getElementById('timer');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const submitBtn = document.getElementById('submit-btn');
+        const restartBtn = document.getElementById('restart-btn');
+        const totalQuestionsElement = document.getElementById('total-questions');
+        const correctAnswersElement = document.getElementById('correct-answers');
+        const accuracyElement = document.getElementById('accuracy');
+        const totalTimeElement = document.getElementById('total-time');
+        const currentScoreElement = document.getElementById('current-score');
+        const totalScoreElement = document.getElementById('total-score-value');
+        const myTotalScoreElement = document.getElementById('my-total-score');
+        const rankingListElement = document.getElementById('ranking-list');
+        const rankingListFullElement = document.getElementById('ranking-list-full');
+        
+        // 章节管理相关DOM元素
+        const addChapterBtn = document.getElementById('add-chapter-btn');
+        const backToMainFromChapterBtn = document.getElementById('back-to-main-from-chapter');
+        const chapterList = document.getElementById('chapter-list');
+        const chapterEditView = document.getElementById('chapter-edit-view');
+        const chapterFormTitle = document.getElementById('chapter-form-title');
+        const chapterId = document.getElementById('chapter-id');
+        const chapterName = document.getElementById('chapter-name');
+        const parentChapterGroup = document.getElementById('parent-chapter-group');
+        const parentChapter = document.getElementById('parent-chapter');
+        const saveChapterBtn = document.getElementById('save-chapter-btn');
+        const cancelChapterEditBtn = document.getElementById('cancel-chapter-edit-btn');
+        
+        // 章节选择相关DOM元素
+        const firstLevelChapters = document.getElementById('first-level-chapters');
+        const secondLevelChapters = document.getElementById('second-level-chapters');
+        const backFromChapterSelectionBtn = document.getElementById('back-from-chapter-selection');
+        
+        // 全局变量
+        let selectedChapter = null;
+        let selectedFirstLevelChapter = null;
+        let selectedSecondLevelChapter = null;
+        let chapters = [];
+        
+        // 初始化事件监听
+        function initEventListeners() {
+            // 登录注册事件监听
+            if (loginBtn) {
+                loginBtn.addEventListener('click', handleLogin);
+            }
+            if (registerBtn) {
+                registerBtn.addEventListener('click', handleRegister);
+            }
+            if (goToRegisterBtn) {
+                goToRegisterBtn.addEventListener('click', () => {
+                    switchSection('register');
+                });
+            }
+            if (goToLoginBtn) {
+                goToLoginBtn.addEventListener('click', () => {
+                    switchSection('login');
+                });
+            }
+            
+            // 查看排行榜 - 先更新用户名
+            if (rankingBtn) {
+                rankingBtn.addEventListener('click', () => {
+                    updateUserName();
+                    showRankingPage();
+                });
+            }
+            
+            // 返回主界面
+            const backBtnElement = document.getElementById('back-btn');
+            if (backBtnElement) {
+                backBtnElement.addEventListener('click', () => {
+                    switchSection('knowledge');
+                });
+            }
+            
+            // 清空排行榜
+            if (clearRankingsBtn) {
+                clearRankingsBtn.addEventListener('click', clearRankings);
+            }
+            
+            // 上一题
+            if (prevBtn) {
+                prevBtn.addEventListener('click', prevQuestion);
+            }
+            
+            // 下一题
+            if (nextBtn) {
+                nextBtn.addEventListener('click', nextQuestion);
+            }
+            
+            // 提交答案
+            if (submitBtn) {
+                submitBtn.addEventListener('click', submitQuiz);
+            }
+            
+            // 重新开始
+            if (restartBtn) {
+                restartBtn.addEventListener('click', restartQuiz);
+            }
+            
+            // 注销功能
+            const logoutBtns = [
+                document.getElementById('logout-btn'),
+                document.getElementById('logout-btn-km'),
+                document.getElementById('logout-btn-ranking'),
+                document.getElementById('logout-btn-quiz'),
+                document.getElementById('logout-btn-result')
+            ];
+            
+            logoutBtns.forEach(btn => {
+                if (btn) {
+                    btn.addEventListener('click', handleLogout);
+                }
+            });
+            
+            // 章节管理事件监听
+            const manageChaptersBtn = document.getElementById('manage-chapters-btn');
+            if (manageChaptersBtn) {
+                manageChaptersBtn.addEventListener('click', () => {
+                    switchSection('chapter-management');
+                    loadChapters();
+                });
+            }
+            
+            // 章节管理界面按钮事件监听
+            const addLevel1ChapterBtn = document.getElementById('add-level1-chapter-btn');
+            if (addLevel1ChapterBtn) {
+                addLevel1ChapterBtn.addEventListener('click', () => {
+                    document.getElementById('chapter-id').value = '';
+                    document.getElementById('chapter-name').value = '';
+                    document.getElementById('parent-chapter').value = '';
+                    document.getElementById('chapter-form-title').textContent = '添加课程';
+                    document.getElementById('chapter-main-view').style.display = 'none';
+                    document.getElementById('chapter-list-view').style.display = 'none';
+                    document.getElementById('chapter-edit-view').style.display = 'block';
+                    document.getElementById('parent-chapter-group').style.display = 'block';
+                });
+            }
+            
+            const viewChaptersBtn = document.getElementById('view-chapters-btn');
+            if (viewChaptersBtn) {
+                viewChaptersBtn.addEventListener('click', () => {
+                    document.getElementById('chapter-main-view').style.display = 'none';
+                    document.getElementById('chapter-list-view').style.display = 'block';
+                    loadChapters();
+                });
+            }
+            
+            const backToChapterMainBtn = document.getElementById('back-to-chapter-main');
+            if (backToChapterMainBtn) {
+                backToChapterMainBtn.addEventListener('click', () => {
+                    document.getElementById('chapter-list-view').style.display = 'none';
+                    document.getElementById('chapter-main-view').style.display = 'block';
+                });
+            }
+            
+            const backToChapterListBtn = document.getElementById('back-to-chapter-list');
+            if (backToChapterListBtn) {
+                backToChapterListBtn.addEventListener('click', () => {
+                    document.getElementById('chapter-edit-view').style.display = 'none';
+                    document.getElementById('chapter-list-view').style.display = 'block';
+                    document.getElementById('chapter-main-view').style.display = 'none';
+                });
+            }
+            
+            const saveChapterBtn = document.getElementById('save-chapter-btn');
+            if (saveChapterBtn) {
+                saveChapterBtn.addEventListener('click', saveChapter);
+            }
+            
+            const cancelChapterEditBtn = document.getElementById('cancel-chapter-edit-btn');
+            if (cancelChapterEditBtn) {
+                cancelChapterEditBtn.addEventListener('click', () => {
+                    document.getElementById('chapter-edit-view').style.display = 'none';
+                    document.getElementById('chapter-list-view').style.display = 'block';
+                    document.getElementById('chapter-main-view').style.display = 'none';
+                });
+            }
+            
+            // 知识库管理事件监听
+            const manageKnowledgeBtn = document.getElementById('manage-knowledge-btn');
+            if (manageKnowledgeBtn) {
+                manageKnowledgeBtn.addEventListener('click', () => {
+                    switchSection('knowledge-management');
+                    loadChaptersForKnowledgeManagement();
+                    loadKnowledgeBase();
+                });
+            }
+            
+            // 章节选择事件监听
+            const selectChapterBtn = document.getElementById('select-chapter-btn');
+            if (selectChapterBtn) {
+                selectChapterBtn.addEventListener('click', () => {
+                    switchSection('chapter-selection');
+                    loadFirstLevelChapters();
+                });
+            }
+            
+            // 课程选择界面返回按钮事件监听
+            const backFromChapterSelectionBtn = document.getElementById('back-from-chapter-selection');
+            if (backFromChapterSelectionBtn) {
+                backFromChapterSelectionBtn.addEventListener('click', () => {
+                    switchSection('knowledge');
+                });
+            }
+            
+            // 课程选择界面返回按钮事件监听
+            const backFromLessonSelectionBtn = document.getElementById('back-from-lesson-selection');
+            if (backFromLessonSelectionBtn) {
+                backFromLessonSelectionBtn.addEventListener('click', () => {
+                    switchSection('chapter-selection');
+                });
+            }
+            
+            // 一级章节选择事件监听
+            const firstLevelChapterSelect = document.getElementById('first-level-chapter');
+            if (firstLevelChapterSelect) {
+                firstLevelChapterSelect.addEventListener('change', async () => {
+                    const selectedChapterId = parseInt(firstLevelChapterSelect.value);
+                    await loadSecondLevelCoursesForKnowledgeManagement(selectedChapterId);
+                });
+            }
+            
+            // 二级课程选择事件监听
+            const secondLevelChapterSelect = document.getElementById('second-level-chapter');
+            if (secondLevelChapterSelect) {
+                secondLevelChapterSelect.addEventListener('change', () => {
+                    const selectedCourseId = parseInt(secondLevelChapterSelect.value);
+                    loadKnowledgeByChapter(selectedCourseId);
+                });
+            }
+            
+            // 添加知识点事件监听
+            const addKnowledgeBtn = document.getElementById('add-knowledge-btn');
+            if (addKnowledgeBtn) {
+                addKnowledgeBtn.addEventListener('click', () => {
+                    showKnowledgeForm();
+                });
+            }
+            
+            // 保存知识点事件监听
+            const saveKnowledgeBtn = document.getElementById('save-knowledge-btn');
+            if (saveKnowledgeBtn) {
+                saveKnowledgeBtn.addEventListener('click', saveKnowledge);
+            }
+            
+            // 取消编辑知识点事件监听
+            const cancelEditBtn = document.getElementById('cancel-edit-btn');
+            if (cancelEditBtn) {
+                cancelEditBtn.addEventListener('click', hideKnowledgeForm);
+            }
+            
+            // 查看网络访问地址事件监听
+            const showNetworkAddressBtn = document.getElementById('show-network-address-btn');
+            if (showNetworkAddressBtn) {
+                showNetworkAddressBtn.addEventListener('click', showNetworkAccessAddress);
+            }
+            
+            // 主机管理事件监听
+            const hostManagementBtn = document.getElementById('host-management-btn');
+            if (hostManagementBtn) {
+                hostManagementBtn.addEventListener('click', () => {
+                    switchSection('host-management');
+                    loadUserList();
+                });
+            }
+            
+            // 主机管理返回事件监听
+            const backToMainFromHostBtn = document.getElementById('back-to-main-from-host');
+            if (backToMainFromHostBtn) {
+                backToMainFromHostBtn.addEventListener('click', () => {
+                    switchSection('knowledge');
+                });
+            }
+            
+            // 章节管理返回事件监听
+            const backToMainFromChapterBtn = document.getElementById('back-to-main-from-chapter');
+            if (backToMainFromChapterBtn) {
+                backToMainFromChapterBtn.addEventListener('click', () => {
+                    switchSection('knowledge');
+                });
+            }
+            
+            // 知识库管理返回事件监听
+            const backToMainBtn = document.getElementById('back-to-main-btn');
+            if (backToMainBtn) {
+                backToMainBtn.addEventListener('click', () => {
+                    switchSection('knowledge');
+                });
+            }
+            
+            // 排行榜返回事件监听
+            const backBtn = document.getElementById('back-btn');
+            if (backBtn) {
+                backBtn.addEventListener('click', () => {
+                    switchSection('knowledge');
+                });
+            }
+            
+            // 保存权限事件监听
+            const savePermissionsBtn = document.getElementById('save-permissions-btn');
+            if (savePermissionsBtn) {
+                savePermissionsBtn.addEventListener('click', saveCoursePermissions);
+            }
+            
+            // 取消权限管理事件监听
+            const cancelPermissionsBtn = document.getElementById('cancel-permissions-btn');
+            if (cancelPermissionsBtn) {
+                cancelPermissionsBtn.addEventListener('click', () => {
+                    document.getElementById('course-permission-container').style.display = 'none';
+                    document.querySelector('.user-list-container').style.display = 'block';
+                });
+            }
+        }
+        
+        // 控制管理员控件显示
+        function controlAdminControls() {
+            // 只在本机访问时显示清空排行榜按钮
+            const isLocalhost = window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost';
+            if (isLocalhost) {
+                adminControls.style.display = 'block';
+            } else {
+                adminControls.style.display = 'none';
+            }
+        }
+        
+        // 清空排行榜
+        async function clearRankings() {
+            if (confirm('确定要清空排行榜吗？此操作不可恢复。')) {
+                try {
+                    // 调用API清空排行榜
+                    const response = await fetch(`${API_BASE_URL}/api/clear-rankings`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                    
+                    const result = await response.json();
+                    if (result.status === 'success') {
+                        alert('排行榜已清空');
+                        // 刷新排行榜显示
+                        await showFullRankings();
+                    } else {
+                        alert('清空排行榜失败: ' + result.message);
+                    }
+                } catch (error) {
+                    console.error('清空排行榜失败:', error);
+                    alert('清空排行榜失败，请检查服务器连接！');
+                }
+            }
+        }
+        
+        // 显示排行榜页面
+        async function showRankingPage() {
+            // 显示排名
+            await showFullRankings();
+            
+            // 控制管理员控件显示
+            controlAdminControls();
+            
+            // 切换到排行榜页面
+            switchSection('ranking');
+        }
+        
+        // 显示完整排名
+        async function showFullRankings() {
+            try {
+                // 从服务器获取排名数据
+                const response = await fetch(`${API_BASE_URL}/api/rankings`);
+                const rankings = await response.json();
+                
+                // 清空排名列表
+                rankingListFullElement.innerHTML = '';
+                
+                // 生成排名列表
+                if (rankings.length === 0) {
+                    const emptyItem = document.createElement('li');
+                    emptyItem.className = 'ranking-item';
+                    emptyItem.textContent = '暂无排名数据';
+                    emptyItem.style.textAlign = 'center';
+                    rankingListFullElement.appendChild(emptyItem);
+                } else {
+                    rankings.forEach((ranking, index) => {
+                        const listItem = document.createElement('li');
+                        listItem.className = 'ranking-item';
+                        listItem.innerHTML = `
+                            <span class="rank">${index + 1}.</span>
+                            <span class="name">${ranking.name}</span>
+                            <span class="score">${ranking.score}分</span>
+                        `;
+                        rankingListFullElement.appendChild(listItem);
+                    });
+                }
+                
+                // 在排行榜最下面添加用户自己的信息
+                if (isLoggedIn && currentUser) {
+                    // 添加分隔线
+                    const divider = document.createElement('li');
+                    divider.className = 'ranking-item';
+                    divider.style.textAlign = 'center';
+                    divider.style.fontWeight = 'bold';
+                    divider.style.color = '#3b82f6';
+                    divider.textContent = '—— 我的排名 ——';
+                    rankingListFullElement.appendChild(divider);
+                    
+                    // 添加用户自己的信息
+                    const userItem = document.createElement('li');
+                    userItem.className = 'ranking-item';
+                    userItem.style.background = 'linear-gradient(135deg, #1e3a8a, #1e40af)';
+                    userItem.style.borderColor = '#60a5fa';
+                    userItem.style.boxShadow = '0 4px 12px rgba(59, 130, 246, 0.5), 0 0 20px rgba(59, 130, 246, 0.3)';
+                    userItem.innerHTML = `
+                        <span class="rank">我</span>
+                        <span class="name">${currentUser.name}</span>
+                        <span class="score">${currentScore || 0}分</span>
+                    `;
+                    rankingListFullElement.appendChild(userItem);
+                }
+            } catch (error) {
+                console.error('获取排名失败:', error);
+                alert('获取排名失败，请检查服务器连接！');
+            }
+        }
+        
+        // 开始答题
+        async function startQuiz() {
+            if (!selectedKnowledge) {
+                alert('请选择一个知识点！');
+                return;
+            }
+            
+            // 设置开始答题标志
+            hasStartedQuiz = true;
+            currentQuizScore = 0;
+            
+            // 显示加载状态
+            questionText.textContent = '正在联网生成题目...';
+            optionsContainer.innerHTML = '<div style="text-align: center; padding: 20px; color: #93c5fd;">AI正在根据知识库生成新题目，请稍候...</div>';
+            
+            // 生成题目（每次都重新联网生成）
+            await generateQuestions();
+            
+            // 初始化答题状态
+            currentQuestionIndex = 0;
+            selectedAnswers = new Array(currentQuestions.length).fill(null);
+            
+            // 记录开始时间
+            quizStartTime = Date.now();
+            
+            // 切换到答题界面
+            switchSection('quiz');
+            
+            // 显示第一题
+            showQuestion();
+            
+            // 开始倒计时
+            startTimer();
+        }
+        
+        // 生成题目
+        async function generateQuestions() {
+            try {
+                // 调用AI生成题目API，每次生成10道新题
+                // 添加时间戳参数，确保每次请求都是新的，避免缓存
+                const timestamp = new Date().getTime();
+                const response = await fetch(`${API_BASE_URL}/api/generate-questions?timestamp=${timestamp}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ 
+                        count: 10,
+                        timestamp: timestamp // 添加时间戳到请求体
+                    })
+                });
+                
+                // 检查响应状态
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                currentQuestions = await response.json();
+                
+                // 如果没有题目，显示错误信息
+                if (!currentQuestions || currentQuestions.length === 0) {
+                    alert('AI生成题目失败，请检查服务器连接！');
+                    switchSection('knowledge');
+                    return;
+                }
+                
+                console.log('成功生成新题目:', currentQuestions.length, '道题');
+            } catch (error) {
+                console.error('生成题目失败:', error);
+                alert('生成题目失败，请检查服务器连接！');
+                switchSection('knowledge');
+            }
+        }
+        
+        // 显示题目
+        function showQuestion() {
+            const question = currentQuestions[currentQuestionIndex];
+            
+            // 更新题目文本
+            questionText.textContent = question.question;
+            
+            // 更新进度
+            questionCount.textContent = `第 ${currentQuestionIndex + 1} 题 / ${currentQuestions.length} 题`;
+            
+            // 生成选项
+            optionsContainer.innerHTML = '';
+            question.options.forEach((option, index) => {
+                const optionElement = document.createElement('div');
+                optionElement.className = `option ${selectedAnswers[currentQuestionIndex] === index ? 'selected' : ''}`;
+                optionElement.textContent = option;
+                optionElement.addEventListener('click', () => selectOption(index));
+                optionsContainer.appendChild(optionElement);
+            });
+            
+            // 重置计时器
+            resetTimer();
+        }
+        
+        // 选择选项
+        function selectOption(index) {
+            selectedAnswers[currentQuestionIndex] = index;
+            
+            // 直接更新选项的选中状态，而不是重新生成整个界面
+            const options = optionsContainer.querySelectorAll('.option');
+            options.forEach((option, i) => {
+                if (i === index) {
+                    option.classList.add('selected');
+                } else {
+                    option.classList.remove('selected');
+                }
+            });
+        }
+        
+        // 上一题
+        function prevQuestion() {
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                showQuestion();
+            }
+        }
+        
+        // 下一题
+        function nextQuestion() {
+            if (currentQuestionIndex < currentQuestions.length - 1) {
+                currentQuestionIndex++;
+                showQuestion();
+            }
+        }
+        
+        // 提交答案
+        function submitQuiz() {
+            // 停止计时器
+            stopTimer();
+            
+            // 计算得分
+            calculateResult();
+            
+            // 切换到结果界面
+            switchSection('result');
+        }
+        
+        // 计算结果
+        async function calculateResult() {
+            let correctCount = 0;
+            let wrongQuestions = [];
+            
+            // 检查答案并收集错题
+            selectedAnswers.forEach((answer, index) => {
+                const question = currentQuestions[index];
+                if (answer === question.answer) {
+                    correctCount++;
+                    // 显示正确反馈
+                    showFeedback(true);
+                } else {
+                    wrongQuestions.push({
+                        question: question.question,
+                        userAnswer: answer,
+                        correctAnswer: question.answer,
+                        options: question.options,
+                        explanation: question.explanation || '暂无解析'
+                    });
+                    // 显示错误反馈
+                    showFeedback(false);
+                }
+            });
+            
+            // 计算用时
+            const totalTime = Math.round((Date.now() - quizStartTime) / 1000);
+            
+            // 计算积分（每答对一题得1分）
+            currentScore = correctCount;
+            currentQuizScore = currentScore;
+            
+            // 提交排名数据到服务器
+            await updateRankings(correctCount, totalTime);
+            
+            // 更新结果显示
+            totalQuestionsElement.textContent = currentQuestions.length;
+            correctAnswersElement.textContent = correctCount;
+            accuracyElement.textContent = `${Math.round((correctCount / currentQuestions.length) * 100)}%`;
+            totalTimeElement.textContent = totalTime;
+            
+            // 显示积分
+            currentScoreElement.textContent = currentScore;
+            totalScoreElement.textContent = currentScore;
+            
+            // 显示错题解析
+            showWrongQuestions(wrongQuestions);
+            
+            // 显示排名
+            await showRankings();
+        }
+        
+        // 显示错题解析
+        function showWrongQuestions(wrongQuestions) {
+            const wrongQuestionsList = document.getElementById('wrong-questions-list');
+            
+            if (wrongQuestions.length === 0) {
+                wrongQuestionsList.innerHTML = '<p style="text-align: center; color: #4caf50; font-weight: 600;">恭喜！没有错题！</p>';
+                return;
+            }
+            
+            let html = '';
+            wrongQuestions.forEach((wrongQ, index) => {
+                html += `
+                    <div class="wrong-question-item">
+                        <h4>第 ${index + 1} 题</h4>
+                        <p><strong>题目：</strong>${wrongQ.question}</p>
+                        <div class="wrong-question-answer">
+                            <p><strong>你的答案：</strong>${wrongQ.options[wrongQ.userAnswer]}</p>
+                            <p><strong>正确答案：</strong>${wrongQ.options[wrongQ.correctAnswer]}</p>
+                        </div>
+                        <div class="wrong-question-explanation">
+                            <h5>解析：</h5>
+                            <p>${wrongQ.explanation}</p>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            wrongQuestionsList.innerHTML = html;
+        }
+        
+        // 更新排名
+        async function updateRankings(correctCount, time) {
+            try {
+                // 创建新的排名记录
+                const newRecord = {
+                    name: USER_NAME,
+                    score: currentScore,
+                    correctCount: correctCount,
+                    time: time,
+                    date: new Date().toISOString()
+                };
+                
+                // 提交排名数据到服务器
+                await fetch(`${API_BASE_URL}/api/submit`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(newRecord)
+                });
+            } catch (error) {
+                console.error('提交排名失败:', error);
+                alert('提交排名失败，请检查服务器连接！');
+            }
+        }
+        
+        // 显示排名
+        async function showRankings() {
+            try {
+                // 从服务器获取排名数据
+                const response = await fetch(`${API_BASE_URL}/api/rankings`);
+                const rankings = await response.json();
+                
+                // 清空排名列表
+                rankingListElement.innerHTML = '';
+                
+                // 生成排名列表
+                if (rankings.length === 0) {
+                    const emptyItem = document.createElement('li');
+                    emptyItem.className = 'ranking-item';
+                    emptyItem.textContent = '暂无排名数据';
+                    emptyItem.style.textAlign = 'center';
+                    rankingListElement.appendChild(emptyItem);
+                } else {
+                    rankings.forEach((ranking, index) => {
+                        const listItem = document.createElement('li');
+                        listItem.className = 'ranking-item';
+                        listItem.innerHTML = `
+                            <span class="rank">${index + 1}.</span>
+                            <span class="name">${ranking.name}</span>
+                            <span class="score">${ranking.score}分</span>
+                        `;
+                        rankingListElement.appendChild(listItem);
+                    });
+                }
+                
+                // 在排行榜最下面添加用户自己的信息
+                if (isLoggedIn && currentUser) {
+                    // 添加分隔线
+                    const divider = document.createElement('li');
+                    divider.className = 'ranking-item';
+                    divider.style.textAlign = 'center';
+                    divider.style.fontWeight = 'bold';
+                    divider.style.color = '#3b82f6';
+                    divider.textContent = '—— 我的排名 ——';
+                    rankingListElement.appendChild(divider);
+                    
+                    // 添加用户自己的信息
+                    const userItem = document.createElement('li');
+                    userItem.className = 'ranking-item';
+                    userItem.style.background = 'linear-gradient(135deg, #1e3a8a, #1e40af)';
+                    userItem.style.borderColor = '#60a5fa';
+                    userItem.style.boxShadow = '0 4px 12px rgba(59, 130, 246, 0.5), 0 0 20px rgba(59, 130, 246, 0.3)';
+                    userItem.innerHTML = `
+                        <span class="rank">我</span>
+                        <span class="name">${currentUser.name}</span>
+                        <span class="score">${currentScore}分</span>
+                    `;
+                    rankingListElement.appendChild(userItem);
+                }
+            } catch (error) {
+                console.error('获取排名失败:', error);
+                alert('获取排名失败，请检查服务器连接！');
+            }
+        }
+        
+        // 重新开始
+        function restartQuiz() {
+            // 重置所有状态
+            selectedKnowledge = null;
+            currentQuestions = [];
+            currentQuestionIndex = 0;
+            selectedAnswers = [];
+            timer = 60;
+            currentScore = 0;
+            
+            // 重置界面
+            knowledgeItems.forEach(item => item.classList.remove('selected'));
+            switchSection('knowledge');
+        }
+        
+        // 切换界面
+        function switchSection(section) {
+            // 隐藏所有界面 - 添加检查，确保元素存在
+            const sections = [loginSection, registerSection, knowledgeSection, quizSection, resultSection, rankingSection, knowledgeManagementSection, chapterManagementSection, chapterSelectionSection, document.getElementById('lesson-selection-section'), document.getElementById('host-management-section')];
+            sections.forEach(s => {
+                if (s) { // 只有存在的元素才会调用classList.remove
+                    s.classList.remove('active');
+                }
+            });
+            
+            // 检查是否登录，除了登录和注册界面
+            if (section !== 'login' && section !== 'register' && !isLoggedIn) {
+                loginSection.classList.add('active');
+                return;
+            }
+            
+            // 显示对应界面
+            if (section === 'login' && loginSection) {
+                loginSection.classList.add('active');
+            } else if (section === 'register' && registerSection) {
+                registerSection.classList.add('active');
+            } else if (section === 'knowledge' && knowledgeSection) {
+                knowledgeSection.classList.add('active');
+                // 控制管理按钮显示
+                controlManagementButtons();
+            } else if (section === 'quiz' && quizSection) {
+                quizSection.classList.add('active');
+            } else if (section === 'result' && resultSection) {
+                resultSection.classList.add('active');
+            } else if (section === 'ranking' && rankingSection) {
+                rankingSection.classList.add('active');
+            } else if (section === 'knowledge-management' && knowledgeManagementSection) {
+                knowledgeManagementSection.classList.add('active');
+            } else if (section === 'chapter-management' && chapterManagementSection) {
+                chapterManagementSection.classList.add('active');
+            } else if (section === 'chapter-selection' && chapterSelectionSection) {
+                chapterSelectionSection.classList.add('active');
+            } else if (section === 'lesson-selection') {
+                const lessonSelectionSection = document.getElementById('lesson-selection-section');
+                if (lessonSelectionSection) {
+                    lessonSelectionSection.classList.add('active');
+                }
+            } else if (section === 'host-management') {
+                const hostManagementSection = document.getElementById('host-management-section');
+                if (hostManagementSection) {
+                    hostManagementSection.classList.add('active');
+                }
+            }
+        }
+        
+        // 主机管理相关函数
+        
+        // 加载用户列表
+        async function loadUserList() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/users`);
+                const users = await response.json();
+                
+                const userListElement = document.getElementById('user-list');
+                userListElement.innerHTML = '';
+                
+                if (users.length === 0) {
+                    userListElement.innerHTML = '<p style="text-align: center; color: #999;">暂无用户数据</p>';
+                    return;
+                }
+                
+                users.forEach(user => {
+                    const userCard = document.createElement('div');
+                    userCard.className = 'user-card';
+                    userCard.style.background = 'rgba(10, 25, 47, 0.7)';
+                    userCard.style.border = '1px solid #3b82f6';
+                    userCard.style.borderRadius = '8px';
+                    userCard.style.padding = '20px';
+                    userCard.style.marginBottom = '20px';
+                    userCard.style.boxShadow = '0 4px 12px rgba(59, 130, 246, 0.3)';
+                    
+                    userCard.innerHTML = `
+                        <div class="user-info">
+                            <h4 style="color: #93c5fd; margin-top: 0;">${user.name}</h4>
+                            <p style="color: #e2e8f0;">用户名: ${user.username}</p>
+                            <p style="color: #e2e8f0;">累计积分: ${user.totalScore}</p>
+                        </div>
+                        <div class="user-actions" style="margin-top: 15px;">
+                            <button class="btn btn-primary manage-courses-btn" data-user-id="${user.id}">管理课程</button>
+                        </div>
+                    `;
+                    userListElement.appendChild(userCard);
+                });
+                
+                // 添加管理课程按钮事件监听
+                document.querySelectorAll('.manage-courses-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const userId = parseInt(this.getAttribute('data-user-id'));
+                        manageUserCourses(userId);
+                    });
+                });
+            } catch (error) {
+                console.error('加载用户列表失败:', error);
+                alert('加载用户列表失败，请检查服务器连接！');
+            }
+        }
+        
+        async function manageUserCourses(userId) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/user/${userId}/courses`);
+                const data = await response.json();
+                
+                if (data.status === 'error') {
+                    alert(data.message);
+                    return;
+                }
+                
+                const user = data.user;
+                const userCourses = data.user_courses;
+                const allCourses = data.all_courses;
+                
+                // 显示用户信息
+                const userInfoElement = document.getElementById('user-info');
+                userInfoElement.innerHTML = `
+                    <h4>用户: ${user.name}</h4>
+                    <p>用户名: ${user.username}</p>
+                    <p>累计积分: ${user.totalScore}</p>
+                `;
+                
+                // 生成课程列表
+                const courseListElement = document.getElementById('course-list');
+                courseListElement.innerHTML = '';
+                
+                // 按级别分组课程
+                const level1Courses = allCourses.filter(course => course.level === 1);
+                const level2Courses = allCourses.filter(course => course.level === 2);
+                
+                // 为每个一级课程创建可展开/折叠的列表
+                level1Courses.forEach(level1Course => {
+                    const isLevel1Selected = userCourses.some(userCourse => userCourse.chapter_id === level1Course.id);
+                    
+                    // 创建一级课程元素，使用与章节管理相同的样式
+                    const courseItem = document.createElement('div');
+                    courseItem.className = 'chapter-item chapter-level-1';
+                    courseItem.style.background = 'rgba(10, 25, 47, 0.7)';
+                    courseItem.style.border = '1px solid #3b82f6';
+                    courseItem.style.borderRadius = '8px';
+                    courseItem.style.padding = '15px';
+                    courseItem.style.marginBottom = '15px';
+                    courseItem.style.boxShadow = '0 4px 12px rgba(59, 130, 246, 0.3), 0 0 20px rgba(59, 130, 246, 0.2)';
+                    courseItem.style.cursor = 'pointer';
+                    courseItem.style.transition = 'all 0.3s ease';
+                    
+                    // 创建课程内容容器，使用与章节管理相同的类名
+                    const courseContent = document.createElement('div');
+                    courseContent.className = 'chapter-content';
+                    courseContent.innerHTML = `
+                        <div style="display: flex; align-items: center;">
+                            <input type="checkbox" id="course-${level1Course.id}" class="course-checkbox level1-checkbox" data-course-id="${level1Course.id}" ${isLevel1Selected ? 'checked' : ''} style="margin-right: 15px; transform: scale(1.2);">
+                            <h4 style="margin: 0; color: #93c5fd;">${level1Course.name}</h4>
+                        </div>
+                    `;
+                    
+                    // 组装一级课程元素
+                    courseItem.appendChild(courseContent);
+                    
+                    // 添加到容器
+                    courseListElement.appendChild(courseItem);
+                    
+                    // 创建二级课程容器，使用与章节管理相同的样式
+                    const childContainer = document.createElement('div');
+                    childContainer.className = 'child-chapters';
+                    childContainer.style.display = 'none';
+                    childContainer.style.marginLeft = '40px';
+                    childContainer.style.marginTop = '15px';
+                    childContainer.style.marginBottom = '15px';
+                    childContainer.style.borderLeft = '2px solid #10b981';
+                    childContainer.style.paddingLeft = '20px';
+                    
+                    // 获取当前一级课程下的二级课程
+                    const relatedLevel2Courses = level2Courses.filter(course => course.parent_id === level1Course.id);
+                    
+                    // 生成二级课程列表
+                    if (relatedLevel2Courses.length > 0) {
+                        relatedLevel2Courses.forEach(level2Course => {
+                            const isLevel2Selected = userCourses.some(userCourse => userCourse.chapter_id === level2Course.id);
+                            const subcourseItem = document.createElement('div');
+                            subcourseItem.className = 'chapter-item chapter-level-2';
+                            subcourseItem.style.background = 'rgba(16, 185, 129, 0.1)';
+                            subcourseItem.style.border = '1px solid #10b981';
+                            subcourseItem.style.borderRadius = '8px';
+                            subcourseItem.style.padding = '12px';
+                            subcourseItem.style.marginBottom = '10px';
+                            subcourseItem.style.boxShadow = '0 4px 12px rgba(16, 185, 129, 0.3), 0 0 20px rgba(16, 185, 129, 0.2)';
+                            subcourseItem.innerHTML = `
+                                <div style="display: flex; align-items: center;">
+                                    <input type="checkbox" id="course-${level2Course.id}" class="course-checkbox level2-checkbox" data-course-id="${level2Course.id}" ${isLevel2Selected ? 'checked' : ''} style="margin-right: 15px; transform: scale(1.1);">
+                                    <label for="course-${level2Course.id}" style="color: #d1fae5; font-size: 16px;">${level2Course.name}</label>
+                                </div>
+                            `;
+                            childContainer.appendChild(subcourseItem);
+                        });
+                    } else {
+                        childContainer.innerHTML = '<p style="color: #94a3b8; margin: 0;">暂无子课程</p>';
+                    }
+                    
+                    // 将二级课程容器添加到一级课程元素后面
+                    courseListElement.appendChild(childContainer);
+                    
+                    // 添加点击事件，实现展开/折叠功能
+                    courseItem.addEventListener('click', (e) => {
+                        // 检查点击的目标是否是复选框或其标签
+                        const isCheckbox = e.target.closest('.course-checkbox');
+                        const isLabel = e.target.closest('label');
+                        if (isCheckbox || isLabel) {
+                            // 如果点击的是复选框或标签，不执行展开/折叠操作
+                            return;
+                        }
+                        
+                        // 切换二级课程容器的显示状态
+                        if (childContainer.style.display === 'none') {
+                            childContainer.style.display = 'block';
+                            courseItem.style.boxShadow = '0 6px 16px rgba(59, 130, 246, 0.4), 0 0 24px rgba(59, 130, 246, 0.3)';
+                        } else {
+                            childContainer.style.display = 'none';
+                            courseItem.style.boxShadow = '0 4px 12px rgba(59, 130, 246, 0.3), 0 0 20px rgba(59, 130, 246, 0.2)';
+                        }
+                    });
+                });
+                
+                // 添加一级课程复选框事件监听，用于全选/取消全选二级课程
+                document.querySelectorAll('.level1-checkbox').forEach(checkbox => {
+                    checkbox.addEventListener('change', function() {
+                        const courseItem = this.closest('.chapter-level-1');
+                        const childContainer = courseItem.nextElementSibling;
+                        const level2Checkboxes = childContainer.querySelectorAll('.level2-checkbox');
+                        level2Checkboxes.forEach(level2Checkbox => {
+                            level2Checkbox.checked = this.checked;
+                        });
+                    });
+                });
+                
+                // 存储当前管理的用户ID
+                document.getElementById('course-permission-container').setAttribute('data-user-id', userId);
+                
+                // 显示权限管理界面
+                document.querySelector('.user-list-container').style.display = 'none';
+                document.getElementById('course-permission-container').style.display = 'block';
+            } catch (error) {
+                console.error('加载用户课程权限失败:', error);
+                alert('加载用户课程权限失败，请检查服务器连接！');
+            }
+        }
+        
+        // 保存课程权限
+        async function saveCoursePermissions() {
+            try {
+                const userId = parseInt(document.getElementById('course-permission-container').getAttribute('data-user-id'));
+                const selectedCourses = [];
+                
+                // 收集选中的课程ID
+                document.querySelectorAll('.course-checkbox:checked').forEach(checkbox => {
+                    selectedCourses.push(parseInt(checkbox.getAttribute('data-course-id')));
+                });
+                
+                // 调用API保存权限
+                const response = await fetch(`${API_BASE_URL}/api/user/${userId}/courses`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ course_ids: selectedCourses })
+                });
+                
+                const result = await response.json();
+                if (result.status === 'success') {
+                    alert('课程权限更新成功！');
+                    // 返回到用户列表
+                    document.getElementById('course-permission-container').style.display = 'none';
+                    document.querySelector('.user-list-container').style.display = 'block';
+                } else {
+                    alert('更新失败: ' + result.message);
+                }
+            } catch (error) {
+                console.error('保存课程权限失败:', error);
+                alert('保存课程权限失败，请检查服务器连接！');
+            }
+        }
+        
+        // 检测用户角色
+        function isHostUser() {
+            if (!currentUser) return false;
+            
+            // 检查是否在本地访问（localhost或127.0.0.1）
+            const isLocalhost = window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost';
+            
+            // 检查用户ID（假设ID为1的用户是默认主机用户）
+            const isAdminId = currentUser.id === 1;
+            
+            // 检查用户名（假设用户名为"host"或"admin"的用户是主机用户）
+            const isAdminUsername = currentUser.username === 'host' || currentUser.username === 'admin';
+            
+            return isLocalhost || isAdminId || isAdminUsername;
+        }
+        
+        // 控制管理按钮显示
+        function controlManagementButtons() {
+            const mainControls = document.querySelector('.main-controls');
+            if (!mainControls) return;
+            
+            const manageButtons = mainControls.querySelectorAll('.btn-info, .btn-warning, .btn-primary:not(#select-chapter-btn)');
+            const rankingButton = document.getElementById('ranking-btn');
+            const logoutButton = document.getElementById('logout-btn');
+            
+            if (isHostUser()) {
+                // 主机用户显示所有按钮
+                manageButtons.forEach(btn => btn.style.display = 'inline-block');
+            } else {
+                // 普通用户只显示排行榜和注销按钮
+                manageButtons.forEach(btn => btn.style.display = 'none');
+            }
+            
+            // 确保排行榜和注销按钮始终显示
+            if (rankingButton) rankingButton.style.display = 'inline-block';
+            if (logoutButton) logoutButton.style.display = 'inline-block';
+            
+            // 手动绑定主界面按钮事件监听器
+            bindMainButtons();
+        }
+        
+        // 手动绑定主界面按钮事件监听器
+        function bindMainButtons() {
+            console.log('=== bindMainButtons called ===');
+            
+            // 选择章节按钮
+            const selectChapterBtn = document.getElementById('select-chapter-btn');
+            if (selectChapterBtn) {
+                console.log('Binding selectChapterBtn click event');
+                // 先移除可能存在的事件监听器
+                selectChapterBtn.removeEventListener('click', handleSelectChapter);
+                // 添加新的事件监听器
+                selectChapterBtn.addEventListener('click', handleSelectChapter);
+            } else {
+                console.log('selectChapterBtn not found');
+            }
+            
+            // 查看排行榜按钮
+            const rankingBtn = document.getElementById('ranking-btn');
+            if (rankingBtn) {
+                console.log('Binding rankingBtn click event');
+                rankingBtn.removeEventListener('click', handleRanking);
+                rankingBtn.addEventListener('click', handleRanking);
+            } else {
+                console.log('rankingBtn not found');
+            }
+            
+            // 管理题库按钮
+            const manageKnowledgeBtn = document.getElementById('manage-knowledge-btn');
+            if (manageKnowledgeBtn) {
+                console.log('Binding manageKnowledgeBtn click event');
+                manageKnowledgeBtn.removeEventListener('click', handleManageKnowledge);
+                manageKnowledgeBtn.addEventListener('click', handleManageKnowledge);
+            } else {
+                console.log('manageKnowledgeBtn not found');
+            }
+            
+            // 管理章节按钮
+            const manageChaptersBtn = document.getElementById('manage-chapters-btn');
+            if (manageChaptersBtn) {
+                console.log('Binding manageChaptersBtn click event');
+                manageChaptersBtn.removeEventListener('click', handleManageChapters);
+                manageChaptersBtn.addEventListener('click', handleManageChapters);
+            } else {
+                console.log('manageChaptersBtn not found');
+            }
+            
+            // 主机管理按钮
+            const hostManagementBtn = document.getElementById('host-management-btn');
+            if (hostManagementBtn) {
+                console.log('Binding hostManagementBtn click event');
+                hostManagementBtn.removeEventListener('click', handleHostManagement);
+                hostManagementBtn.addEventListener('click', handleHostManagement);
+            } else {
+                console.log('hostManagementBtn not found');
+            }
+            
+            // 查看网络访问地址按钮
+            const showNetworkAddressBtn = document.getElementById('show-network-address-btn');
+            if (showNetworkAddressBtn) {
+                console.log('Binding showNetworkAddressBtn click event');
+                showNetworkAddressBtn.removeEventListener('click', showNetworkAccessAddress);
+                showNetworkAddressBtn.addEventListener('click', showNetworkAccessAddress);
+            } else {
+                console.log('showNetworkAddressBtn not found');
+            }
+            
+            // 注销按钮
+            const logoutBtn = document.getElementById('logout-btn');
+            if (logoutBtn) {
+                console.log('Binding logoutBtn click event');
+                logoutBtn.removeEventListener('click', handleLogout);
+                logoutBtn.addEventListener('click', handleLogout);
+            } else {
+                console.log('logoutBtn not found');
+            }
+            
+            // 绑定所有返回按钮事件监听器
+            bindBackButtons();
+            
+            console.log('=== bindMainButtons completed ===');
+        }
+        
+        // 手动绑定返回按钮事件监听器
+        function bindBackButtons() {
+            console.log('=== bindBackButtons called ===');
+            
+            // 课程选择界面返回按钮
+            const backFromChapterSelectionBtn = document.getElementById('back-from-chapter-selection');
+            if (backFromChapterSelectionBtn) {
+                console.log('Binding backFromChapterSelectionBtn click event');
+                backFromChapterSelectionBtn.removeEventListener('click', handleBackFromChapterSelection);
+                backFromChapterSelectionBtn.addEventListener('click', handleBackFromChapterSelection);
+            } else {
+                console.log('backFromChapterSelectionBtn not found');
+            }
+            
+            // 课程选择界面返回按钮
+            const backFromLessonSelectionBtn = document.getElementById('back-from-lesson-selection');
+            if (backFromLessonSelectionBtn) {
+                console.log('Binding backFromLessonSelectionBtn click event');
+                backFromLessonSelectionBtn.removeEventListener('click', handleBackFromLessonSelection);
+                backFromLessonSelectionBtn.addEventListener('click', handleBackFromLessonSelection);
+            } else {
+                console.log('backFromLessonSelectionBtn not found');
+            }
+            
+            // 章节管理返回按钮
+            const backToMainFromChapterBtn = document.getElementById('back-to-main-from-chapter');
+            if (backToMainFromChapterBtn) {
+                console.log('Binding backToMainFromChapterBtn click event');
+                backToMainFromChapterBtn.removeEventListener('click', handleBackToMainFromChapter);
+                backToMainFromChapterBtn.addEventListener('click', handleBackToMainFromChapter);
+            } else {
+                console.log('backToMainFromChapterBtn not found');
+            }
+            
+            // 主机管理返回按钮
+            const backToMainFromHostBtn = document.getElementById('back-to-main-from-host');
+            if (backToMainFromHostBtn) {
+                console.log('Binding backToMainFromHostBtn click event');
+                backToMainFromHostBtn.removeEventListener('click', handleBackToMainFromHost);
+                backToMainFromHostBtn.addEventListener('click', handleBackToMainFromHost);
+            } else {
+                console.log('backToMainFromHostBtn not found');
+            }
+            
+            // 知识库管理返回按钮
+            const backToMainBtn = document.getElementById('back-to-main-btn');
+            if (backToMainBtn) {
+                console.log('Binding backToMainBtn click event');
+                backToMainBtn.removeEventListener('click', handleBackToMain);
+                backToMainBtn.addEventListener('click', handleBackToMain);
+            } else {
+                console.log('backToMainBtn not found');
+            }
+            
+            // 排行榜返回按钮
+            const backBtn = document.getElementById('back-btn');
+            if (backBtn) {
+                console.log('Binding backBtn click event');
+                backBtn.removeEventListener('click', handleBack);
+                backBtn.addEventListener('click', handleBack);
+            } else {
+                console.log('backBtn not found');
+            }
+            
+            console.log('=== bindBackButtons completed ===');
+        }
+        
+        // 返回按钮点击处理函数
+        function handleBackFromChapterSelection() {
+            console.log('back-from-chapter-selection clicked!');
+            switchSection('knowledge');
+        }
+        
+        function handleBackFromLessonSelection() {
+            console.log('back-from-lesson-selection clicked!');
+            switchSection('chapter-selection');
+        }
+        
+        function handleBackToMainFromChapter() {
+            console.log('back-to-main-from-chapter clicked!');
+            switchSection('knowledge');
+        }
+        
+        function handleBackToMainFromHost() {
+            console.log('back-to-main-from-host clicked!');
+            switchSection('knowledge');
+        }
+        
+        function handleBackToMain() {
+            console.log('back-to-main-btn clicked!');
+            switchSection('knowledge');
+        }
+        
+        function handleBack() {
+            console.log('back-btn clicked!');
+            switchSection('knowledge');
+        }
+        
+        // 主界面按钮点击处理函数
+        function handleSelectChapter() {
+            console.log('select-chapter-btn clicked!');
+            switchSection('chapter-selection');
+            loadFirstLevelChapters();
+        }
+        
+        function handleRanking() {
+            console.log('ranking-btn clicked!');
+            updateUserName();
+            showRankingPage();
+        }
+        
+        function handleManageKnowledge() {
+            console.log('manage-knowledge-btn clicked!');
+            switchSection('knowledge-management');
+            loadChaptersForKnowledgeManagement();
+            loadKnowledgeBase();
+        }
+        
+        function handleManageChapters() {
+            console.log('manage-chapters-btn clicked!');
+            switchSection('chapter-management');
+            loadChapters();
+        }
+        
+        function handleHostManagement() {
+            console.log('host-management-btn clicked!');
+            switchSection('host-management');
+            loadUserList();
+        }
+        
+        // 处理登录
+        async function handleLogin() {
+            console.log('handleLogin called!');
+            
+            // 获取用户输入
+            const username = loginUsernameInput.value.trim();
+            const password = loginPasswordInput.value.trim();
+            
+            if (!username || !password) {
+                alert('请输入用户名和密码！');
+                return;
+            }
+            
+            try {
+                // 调用后端登录API
+                const response = await fetch(`${API_BASE_URL}/api/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ username, password })
+                });
+                
+                const result = await response.json();
+                
+                if (result.status === 'success') {
+                    isLoggedIn = true;
+                    currentUser = result.user;
+                    USER_NAME = currentUser.name;
+                    
+                    // 更新欢迎信息中的用户名显示
+                    const welcomeUserName = document.getElementById('welcome-user-name');
+                    if (welcomeUserName) {
+                        welcomeUserName.textContent = USER_NAME;
+                    }
+                    
+                    localStorage.setItem('quizUser', JSON.stringify(currentUser));
+                    
+                    // 控制管理按钮显示
+                    controlManagementButtons();
+                    
+                    // 不自动显示网络访问地址，改为点击按钮后显示
+                    
+                    switchSection('knowledge');
+                    console.log('Navigation completed!');
+                } else {
+                    alert('登录失败: ' + result.message);
+                }
+            } catch (error) {
+                console.error('登录失败:', error);
+                alert('登录失败，请检查服务器连接！');
+            }
+        }
+        
+        // 显示网络访问地址
+        function showNetworkAccessAddress() {
+            // 验证IPv4地址的函数
+            function validateIPAddress(ip) {
+                // 验证IPv4地址格式
+                const ipv4Regex = /^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+                return ipv4Regex.test(ip);
+            }
+            
+            // 获取服务器IP地址的函数
+            function getServerIP() {
+                // 尝试获取本地网络IP地址
+                // 这里使用一种简化的方法，实际项目中可能需要更复杂的实现
+                const hostname = window.location.hostname;
+                
+                // 如果是localhost或127.0.0.1，尝试获取网络IP
+                if (hostname === 'localhost' || hostname === '127.0.0.1') {
+                    // 这里我们可以使用一个简单的方法来获取网络IP
+                    // 注意：这种方法在某些浏览器中可能受限
+                    return new Promise((resolve) => {
+                        // 创建一个临时的RTCPeerConnection
+                        const pc = new RTCPeerConnection({ iceServers: [] });
+                        
+                        // 创建一个数据通道
+                        pc.createDataChannel('');
+                        
+                        // 存储所有找到的IP地址
+                        const foundIPs = [];
+                        
+                        // 监听ICE候选事件
+                        pc.onicecandidate = (event) => {
+                            if (event.candidate) {
+                                // 从ICE候选中提取IP地址
+                                // 使用更严格的正则表达式，只匹配有效的IPv4地址
+                                const ipRegex = /\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b/;
+                                const match = event.candidate.candidate.match(ipRegex);
+                                if (match) {
+                                    const ip = match[0];
+                                    // 确保不是本地回环地址，并且是有效的IPv4地址
+                                    if (ip !== '127.0.0.1' && validateIPAddress(ip) && !foundIPs.includes(ip)) {
+                                        foundIPs.push(ip);
+                                        // 优先选择局域网IP地址（192.168.或10.开头的）
+                                        if (ip.startsWith('192.168.') || ip.startsWith('10.')) {
+                                            resolve(ip);
+                                            pc.close();
+                                        }
+                                    }
+                                }
+                            }
+                        };
+                        
+                        // 创建一个报价
+                        pc.createOffer().then(offer => pc.setLocalDescription(offer));
+                        
+                        // 如果在3秒内没有获取到IP，使用默认值
+                        setTimeout(() => {
+                            // 如果找到了IP地址，使用第一个
+                            if (foundIPs.length > 0) {
+                                resolve(foundIPs[0]);
+                            } else {
+                                // 尝试使用本地网络IP段的默认值
+                                resolve('192.168.1.1'); // 默认本地网络IP
+                            }
+                        }, 3000);
+                    });
+                } else {
+                    // 如果已经是网络IP，直接返回
+                    return Promise.resolve(hostname);
+                }
+            }
+            
+            // 显示网络访问地址
+            async function displayNetworkAddress() {
+                try {
+                    const serverIP = await getServerIP();
+                    const port = 8888;
+                    
+                    // 构建网络访问地址
+                    const networkAddress = `http://${serverIP}:${port}/quiz-system.html`;
+                    
+                    // 创建提示框
+                    const alertBox = document.createElement('div');
+                    alertBox.style.position = 'fixed';
+                    alertBox.style.top = '50%';
+                    alertBox.style.left = '50%';
+                    alertBox.style.transform = 'translate(-50%, -50%)';
+                    alertBox.style.background = 'rgba(10, 25, 47, 0.95)';
+                    alertBox.style.border = '2px solid #3b82f6';
+                    alertBox.style.borderRadius = '16px';
+                    alertBox.style.padding = '30px';
+                    alertBox.style.boxShadow = '0 8px 32px rgba(59, 130, 246, 0.4), 0 0 60px rgba(59, 130, 246, 0.3)';
+                    alertBox.style.color = '#e2e8f0';
+                    alertBox.style.zIndex = '10000';
+                    alertBox.style.textAlign = 'center';
+                    alertBox.style.maxWidth = '500px';
+                    alertBox.style.backdropFilter = 'blur(10px)';
+                    
+                    alertBox.innerHTML = `
+                        <h3 style="color: #93c5fd; margin-bottom: 20px;">网络访问地址</h3>
+                        <p style="margin-bottom: 20px; font-size: 16px;">其他终端可以通过以下地址访问系统：</p>
+                        <div style="background: rgba(30, 41, 59, 0.8); border: 1px solid #3b82f6; border-radius: 8px; padding: 15px; margin-bottom: 20px; word-break: break-all;">
+                            ${networkAddress}
+                        </div>
+                        <p style="margin-bottom: 20px; font-size: 14px; color: #94a3b8;">请将此地址复制给其他需要访问系统的终端</p>
+                        <button onclick="this.parentElement.remove()" style="background: linear-gradient(135deg, #1e40af, #3b82f6, #60a5fa); color: white; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: 600;">
+                            我知道了
+                        </button>
+                    `;
+                    
+                    // 添加到页面
+                    document.body.appendChild(alertBox);
+                } catch (error) {
+                    console.error('获取服务器IP失败:', error);
+                    
+                    // 失败时使用默认地址
+                    const port = 8888;
+                    const networkAddress = `http://[服务器IP]:${port}/quiz-system.html`;
+                    
+                    // 创建提示框
+                    const alertBox = document.createElement('div');
+                    alertBox.style.position = 'fixed';
+                    alertBox.style.top = '50%';
+                    alertBox.style.left = '50%';
+                    alertBox.style.transform = 'translate(-50%, -50%)';
+                    alertBox.style.background = 'rgba(10, 25, 47, 0.95)';
+                    alertBox.style.border = '2px solid #3b82f6';
+                    alertBox.style.borderRadius = '16px';
+                    alertBox.style.padding = '30px';
+                    alertBox.style.boxShadow = '0 8px 32px rgba(59, 130, 246, 0.4), 0 0 60px rgba(59, 130, 246, 0.3)';
+                    alertBox.style.color = '#e2e8f0';
+                    alertBox.style.zIndex = '10000';
+                    alertBox.style.textAlign = 'center';
+                    alertBox.style.maxWidth = '500px';
+                    alertBox.style.backdropFilter = 'blur(10px)';
+                    
+                    alertBox.innerHTML = `
+                        <h3 style="color: #93c5fd; margin-bottom: 20px;">网络访问地址</h3>
+                        <p style="margin-bottom: 20px; font-size: 16px;">其他终端可以通过以下地址访问系统：</p>
+                        <div style="background: rgba(30, 41, 59, 0.8); border: 1px solid #3b82f6; border-radius: 8px; padding: 15px; margin-bottom: 20px; word-break: break-all;">
+                            ${networkAddress}
+                        </div>
+                        <p style="margin-bottom: 20px; font-size: 14px; color: #94a3b8;">请将[服务器IP]替换为实际的服务器IP地址</p>
+                        <button onclick="this.parentElement.remove()" style="background: linear-gradient(135deg, #1e40af, #3b82f6, #60a5fa); color: white; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: 600;">
+                            我知道了
+                        </button>
+                    `;
+                    
+                    // 添加到页面
+                    document.body.appendChild(alertBox);
+                }
+            }
+            
+            // 调用显示函数
+            displayNetworkAddress();
+        }
+        
+        // 处理注册
+        async function handleRegister() {
+            const name = registerNameInput.value.trim();
+            const password = registerPasswordInput.value.trim();
+            
+            if (!name || !password) {
+                alert('请填写完整的注册信息！');
+                return;
+            }
+            
+            // 验证密码是否为6位数字
+            if (!/^\d{6}$/.test(password)) {
+                alert('密码必须是6位数字！');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/register`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ name, password })
+                });
+                
+                const result = await response.json();
+                
+                if (result.status === 'success') {
+                    alert('注册成功，请登录！');
+                    switchSection('login');
+                    // 清空注册表单
+                    registerNameInput.value = '';
+                    registerPasswordInput.value = '';
+                } else {
+                    alert(result.message);
+                }
+            } catch (error) {
+                console.error('注册失败:', error);
+                alert('注册失败，请检查服务器连接！');
+            }
+        }
+        
+        // 处理注销
+        async function handleLogout() {
+            if (confirm('确定要注销吗？')) {
+                // 如果正在答题，减去本次答题获得的全部分数
+                if (hasStartedQuiz && currentQuizScore > 0) {
+                    try {
+                        await fetch(`${API_BASE_URL}/api/update-score`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({ 
+                                username: currentUser.username, 
+                                score: -currentQuizScore 
+                            })
+                        });
+                    } catch (error) {
+                        console.error('更新积分失败:', error);
+                    }
+                }
+                
+                // 重置状态
+                isLoggedIn = false;
+                currentUser = null;
+                hasStartedQuiz = false;
+                currentQuizScore = 0;
+                selectedKnowledge = null;
+                currentQuestions = [];
+                currentQuestionIndex = 0;
+                selectedAnswers = [];
+                timer = 60;
+                currentScore = 0;
+                
+                // 清除本地存储
+                localStorage.removeItem('quizUser');
+                
+                // 重置界面
+                knowledgeItems.forEach(item => item.classList.remove('selected'));
+                switchSection('login');
+                
+                // 停止计时器
+                stopTimer();
+            }
+        }
+        
+        // 获取我的累计积分（从本地存储获取，因为服务器只存储排名）
+        function getMyTotalScore() {
+            const score = localStorage.getItem('myTotalScore');
+            return score ? parseInt(score) : 0;
+        }
+        
+        // 保存我的累计积分到本地存储
+        function saveMyTotalScore(score) {
+            localStorage.setItem('myTotalScore', score.toString());
+            totalScore = score;
+        }
+        
+        // 初始化积分数据
+        function initScoreData() {
+            // 从本地存储获取我的累计积分
+            const myTotalScore = getMyTotalScore();
+            totalScore = myTotalScore;
+            if (totalScoreElement) totalScoreElement.textContent = myTotalScore;
+            if (myTotalScoreElement) myTotalScoreElement.textContent = myTotalScore;
+        }
+        
+        // 计时器相关函数
+        function startTimer() {
+            stopTimer(); // 先停止之前的计时器
+            timer = 30;
+            timerElement.textContent = timer;
+            timerInterval = setInterval(() => {
+                timer--;
+                timerElement.textContent = timer;
+                if (timer <= 0) {
+                    stopTimer();
+                    nextQuestion();
+                }
+            }, 1000);
+        }
+        
+        function stopTimer() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+        }
+        
+        function resetTimer() {
+            stopTimer();
+            timer = 30;
+            timerElement.textContent = timer;
+            startTimer();
+        }
+        
+        // 章节管理相关函数
+        async function loadChapters() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/chapters`);
+                chapters = await response.json();
+                
+                const chapterList = document.getElementById('chapter-list');
+                chapterList.innerHTML = '';
+                
+                if (chapters.length === 0) {
+                    chapterList.innerHTML = '<p style="text-align: center; color: #999;">暂无章节数据</p>';
+                    return;
+                }
+                
+                // 按级别分组章节
+                const level1Chapters = chapters.filter(chapter => chapter.level === 1);
+                const level2Chapters = chapters.filter(chapter => chapter.level === 2);
+                
+                // 为每个一级章节创建可展开/折叠的列表
+                level1Chapters.forEach(level1Chapter => {
+                    const chapterItem = document.createElement('div');
+                    chapterItem.className = 'chapter-item chapter-level-1';
+                    chapterItem.style.background = 'rgba(10, 25, 47, 0.7)';
+                    chapterItem.style.border = '1px solid #3b82f6';
+                    chapterItem.style.borderRadius = '8px';
+                    chapterItem.style.padding = '15px';
+                    chapterItem.style.marginBottom = '15px';
+                    chapterItem.style.boxShadow = '0 4px 12px rgba(59, 130, 246, 0.3), 0 0 20px rgba(59, 130, 246, 0.2)';
+                    chapterItem.style.cursor = 'pointer';
+                    chapterItem.style.transition = 'all 0.3s ease';
+                    
+                    chapterItem.innerHTML = `
+                        <div class="chapter-content">
+                            <h4 style="color: #93c5fd; margin-top: 0;">${level1Chapter.name}</h4>
+                        </div>
+                        <div class="chapter-actions" style="margin-top: 15px;">
+                            <button class="btn btn-info edit-chapter-btn" data-chapter-id="${level1Chapter.id}">编辑</button>
+                            <button class="btn btn-danger delete-chapter-btn" data-chapter-id="${level1Chapter.id}">删除</button>
+                            <button class="btn btn-success add-subchapter-btn" data-parent-id="${level1Chapter.id}">添加子课程</button>
+                        </div>
+                    `;
+                    chapterList.appendChild(chapterItem);
+                    
+                    // 创建二级章节容器
+                    const childContainer = document.createElement('div');
+                    childContainer.className = 'child-chapters';
+                    childContainer.style.display = 'none';
+                    childContainer.style.marginLeft = '40px';
+                    childContainer.style.marginTop = '15px';
+                    childContainer.style.marginBottom = '15px';
+                    childContainer.style.borderLeft = '2px solid #10b981';
+                    childContainer.style.paddingLeft = '20px';
+                    
+                    // 获取当前一级章节下的二级章节
+                    const relatedLevel2Chapters = level2Chapters.filter(chapter => chapter.parent_id === level1Chapter.id);
+                    
+                    // 生成二级章节列表
+                    if (relatedLevel2Chapters.length > 0) {
+                        relatedLevel2Chapters.forEach(level2Chapter => {
+                            const subchapterItem = document.createElement('div');
+                            subchapterItem.className = 'chapter-item chapter-level-2';
+                            subchapterItem.style.background = 'rgba(16, 185, 129, 0.1)';
+                            subchapterItem.style.border = '1px solid #10b981';
+                            subchapterItem.style.borderRadius = '8px';
+                            subchapterItem.style.padding = '12px';
+                            subchapterItem.style.marginBottom = '10px';
+                            subchapterItem.style.boxShadow = '0 4px 12px rgba(16, 185, 129, 0.3), 0 0 20px rgba(16, 185, 129, 0.2)';
+                            subchapterItem.innerHTML = `
+                                <div class="chapter-content">
+                                    <h4 style="color: #d1fae5; margin-top: 0;">${level2Chapter.name}</h4>
+                                </div>
+                                <div class="chapter-actions" style="margin-top: 10px;">
+                                    <button class="btn btn-info edit-chapter-btn" data-chapter-id="${level2Chapter.id}">编辑</button>
+                                    <button class="btn btn-danger delete-chapter-btn" data-chapter-id="${level2Chapter.id}">删除</button>
+                                </div>
+                            `;
+                            childContainer.appendChild(subchapterItem);
+                        });
+                    } else {
+                        childContainer.innerHTML = '<p style="color: #94a3b8; margin: 0;">暂无子课程</p>';
+                    }
+                    
+                    // 将二级章节容器添加到一级章节元素后面
+                    chapterList.appendChild(childContainer);
+                    
+                    // 添加点击事件，实现展开/折叠功能
+                    chapterItem.addEventListener('click', (e) => {
+                        // 检查点击的目标是否是按钮
+                        const isButton = e.target.closest('button');
+                        if (isButton) {
+                            // 如果点击的是按钮，不执行展开/折叠操作
+                            return;
+                        }
+                        
+                        // 切换二级章节容器的显示状态
+                        if (childContainer.style.display === 'none') {
+                            childContainer.style.display = 'block';
+                            chapterItem.style.boxShadow = '0 6px 16px rgba(59, 130, 246, 0.4), 0 0 24px rgba(59, 130, 246, 0.3)';
+                        } else {
+                            childContainer.style.display = 'none';
+                            chapterItem.style.boxShadow = '0 4px 12px rgba(59, 130, 246, 0.3), 0 0 20px rgba(59, 130, 246, 0.2)';
+                        }
+                    });
+                });
+                
+                // 添加编辑章节按钮事件监听
+                document.querySelectorAll('.edit-chapter-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const chapterId = parseInt(this.getAttribute('data-chapter-id'));
+                        editChapter(chapterId);
+                    });
+                });
+                
+                // 添加删除章节按钮事件监听
+                document.querySelectorAll('.delete-chapter-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const chapterId = parseInt(this.getAttribute('data-chapter-id'));
+                        deleteChapter(chapterId);
+                    });
+                });
+                
+                // 添加添加子课程按钮事件监听
+                document.querySelectorAll('.add-subchapter-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const parentId = parseInt(this.getAttribute('data-parent-id'));
+                        addSubchapter(parentId);
+                    });
+                });
+            } catch (error) {
+                console.error('加载章节失败:', error);
+                alert('加载章节失败，请检查服务器连接！');
+            }
+        }
+        
+        async function saveChapter() {
+            try {
+                const chapterId = parseInt(document.getElementById('chapter-id').value);
+                const chapterName = document.getElementById('chapter-name').value.trim();
+                const parentChapterId = parseInt(document.getElementById('parent-chapter').value);
+                
+                if (!chapterName) {
+                    alert('请输入章节名称！');
+                    return;
+                }
+                
+                const chapterData = {
+                    name: chapterName,
+                    parent_id: parentChapterId || null
+                };
+                
+                let response;
+                if (chapterId) {
+                    // 更新现有章节
+                    response = await fetch(`${API_BASE_URL}/api/chapters/${chapterId}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(chapterData)
+                    });
+                } else {
+                    // 创建新章节
+                    response = await fetch(`${API_BASE_URL}/api/chapters`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(chapterData)
+                    });
+                }
+                
+                const result = await response.json();
+                if (result.status === 'success') {
+                    alert(chapterId ? '章节更新成功！' : '章节添加成功！');
+                    document.getElementById('chapter-edit-view').style.display = 'none';
+                    document.getElementById('chapter-list-view').style.display = 'block';
+                    document.getElementById('chapter-main-view').style.display = 'none';
+                    loadChapters();
+                } else {
+                    alert('操作失败: ' + result.message);
+                }
+            } catch (error) {
+                console.error('保存章节失败:', error);
+                alert('保存章节失败，请检查服务器连接！');
+            }
+        }
+        
+        async function loadChaptersForKnowledgeManagement() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/chapters`);
+                const chapters = await response.json();
+                
+                const firstLevelChapterSelect = document.getElementById('first-level-chapter');
+                const secondLevelChapterSelect = document.getElementById('second-level-chapter');
+                const knowledgeChapterEdit = document.getElementById('knowledge-chapter-edit');
+                
+                // 清空现有选项
+                if (firstLevelChapterSelect) {
+                    firstLevelChapterSelect.innerHTML = '<option value="">所有章节</option>';
+                }
+                if (secondLevelChapterSelect) {
+                    secondLevelChapterSelect.innerHTML = '<option value="">所有课程</option>';
+                }
+                if (knowledgeChapterEdit) {
+                    knowledgeChapterEdit.innerHTML = '<option value="">未分类</option>';
+                }
+                
+                // 按级别分组章节
+                const level1Chapters = chapters.filter(chapter => chapter.level === 1);
+                const level2Chapters = chapters.filter(chapter => chapter.level === 2);
+                
+                // 填充一级章节选项
+                level1Chapters.forEach(chapter => {
+                    if (firstLevelChapterSelect) {
+                        const option = document.createElement('option');
+                        option.value = chapter.id;
+                        option.textContent = chapter.name;
+                        firstLevelChapterSelect.appendChild(option);
+                    }
+                    if (knowledgeChapterEdit) {
+                        const option = document.createElement('option');
+                        option.value = chapter.id;
+                        option.textContent = chapter.name;
+                        knowledgeChapterEdit.appendChild(option);
+                    }
+                });
+                
+                // 填充二级章节选项到知识点编辑下拉菜单
+                level2Chapters.forEach(chapter => {
+                    if (knowledgeChapterEdit) {
+                        const option = document.createElement('option');
+                        option.value = chapter.id;
+                        option.textContent = chapter.name;
+                        knowledgeChapterEdit.appendChild(option);
+                    }
+                });
+            } catch (error) {
+                console.error('加载章节失败:', error);
+            }
+        }
+        
+        // 根据选择的一级章节加载对应的二级课程
+        async function loadSecondLevelCoursesForKnowledgeManagement(chapterId) {
+            try {
+                console.log('loadSecondLevelCoursesForKnowledgeManagement called with chapterId:', chapterId);
+                const response = await fetch(`${API_BASE_URL}/api/chapters`);
+                const chapters = await response.json();
+                console.log('Chapters received from API:', chapters);
+                
+                const secondLevelChapterSelect = document.getElementById('second-level-chapter');
+                console.log('secondLevelChapterSelect:', secondLevelChapterSelect);
+                
+                if (secondLevelChapterSelect) {
+                    // 清空现有选项
+                    secondLevelChapterSelect.innerHTML = '<option value="">所有课程</option>';
+                    
+                    // 筛选对应一级章节的二级课程
+                    if (chapterId) {
+                        const level2Chapters = chapters.filter(chapter => chapter.level === 2 && parseInt(chapter.parent_id) === chapterId);
+                        console.log('Filtered level2Chapters:', level2Chapters);
+                        
+                        // 填充二级课程选项
+                        level2Chapters.forEach(chapter => {
+                            const option = document.createElement('option');
+                            option.value = chapter.id;
+                            option.textContent = chapter.name;
+                            secondLevelChapterSelect.appendChild(option);
+                        });
+                    } else {
+                        // 如果没有选择一级章节，只显示"所有课程"选项
+                        // 不添加任何具体课程选项
+                    }
+                }
+            } catch (error) {
+                console.error('加载二级课程失败:', error);
+            }
+        }
+        
+        // 课程选择相关函数
+        async function loadFirstLevelChapters() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/chapters`);
+                const chapters = await response.json();
+                
+                const firstLevelChaptersElement = document.getElementById('first-level-chapters');
+                firstLevelChaptersElement.innerHTML = '';
+                
+                // 筛选一级章节
+                const level1Chapters = chapters.filter(chapter => chapter.level === 1);
+                
+                if (level1Chapters.length === 0) {
+                    firstLevelChaptersElement.innerHTML = '<p style="text-align: center; color: #999;">暂无课程</p>';
+                    return;
+                }
+                
+                // 生成一级章节卡片
+                level1Chapters.forEach(chapter => {
+                    const chapterCard = document.createElement('div');
+                    chapterCard.className = 'chapter-card';
+                    chapterCard.style.background = 'rgba(10, 25, 47, 0.7)';
+                    chapterCard.style.border = '1px solid #3b82f6';
+                    chapterCard.style.borderRadius = '8px';
+                    chapterCard.style.padding = '20px';
+                    chapterCard.style.margin = '10px';
+                    chapterCard.style.boxShadow = '0 4px 12px rgba(59, 130, 246, 0.3), 0 0 20px rgba(59, 130, 246, 0.2)';
+                    chapterCard.style.cursor = 'pointer';
+                    chapterCard.style.transition = 'all 0.3s ease';
+                    chapterCard.style.minWidth = '200px';
+                    chapterCard.style.display = 'inline-block';
+                    chapterCard.style.textAlign = 'center';
+                    
+                    chapterCard.innerHTML = `
+                        <h4 style="color: #93c5fd; margin-top: 0;">${chapter.name}</h4>
+                        <button class="btn btn-primary select-chapter-btn" data-chapter-id="${chapter.id}" style="margin-top: 15px;">选择</button>
+                    `;
+                    
+                    firstLevelChaptersElement.appendChild(chapterCard);
+                });
+                
+                // 添加选择章节按钮事件监听
+                document.querySelectorAll('.select-chapter-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const chapterId = parseInt(this.getAttribute('data-chapter-id'));
+                        selectedFirstLevelChapter = chapterId;
+                        loadSecondLevelCourses(chapterId);
+                    });
+                });
+            } catch (error) {
+                console.error('加载一级章节失败:', error);
+                alert('加载一级章节失败，请检查服务器连接！');
+            }
+        }
+        
+        async function loadSecondLevelCourses(chapterId) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/chapters`);
+                const chapters = await response.json();
+                
+                const secondLevelChaptersElement = document.getElementById('second-level-chapters');
+                secondLevelChaptersElement.innerHTML = '';
+                
+                // 筛选指定一级章节下的二级章节
+                const level2Chapters = chapters.filter(chapter => chapter.parent_id === chapterId);
+                
+                if (level2Chapters.length === 0) {
+                    secondLevelChaptersElement.innerHTML = '<p style="text-align: center; color: #999;">暂无子课程</p>';
+                    return;
+                }
+                
+                // 生成二级章节卡片
+                level2Chapters.forEach(chapter => {
+                    const chapterCard = document.createElement('div');
+                    chapterCard.className = 'chapter-card';
+                    chapterCard.style.background = 'rgba(16, 185, 129, 0.1)';
+                    chapterCard.style.border = '1px solid #10b981';
+                    chapterCard.style.borderRadius = '8px';
+                    chapterCard.style.padding = '20px';
+                    chapterCard.style.margin = '10px';
+                    chapterCard.style.boxShadow = '0 4px 12px rgba(16, 185, 129, 0.3), 0 0 20px rgba(16, 185, 129, 0.2)';
+                    chapterCard.style.cursor = 'pointer';
+                    chapterCard.style.transition = 'all 0.3s ease';
+                    chapterCard.style.minWidth = '200px';
+                    chapterCard.style.display = 'inline-block';
+                    chapterCard.style.textAlign = 'center';
+                    
+                    chapterCard.innerHTML = `
+                        <h4 style="color: #d1fae5; margin-top: 0;">${chapter.name}</h4>
+                        <button class="btn btn-primary start-quiz-btn" data-chapter-id="${chapter.id}" style="margin-top: 15px;">开始答题</button>
+                    `;
+                    
+                    secondLevelChaptersElement.appendChild(chapterCard);
+                });
+                
+                // 显示二级章节选择界面
+                switchSection('lesson-selection');
+                
+                // 添加开始答题按钮事件监听
+                document.querySelectorAll('.start-quiz-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const chapterId = parseInt(this.getAttribute('data-chapter-id'));
+                        selectedSecondLevelChapter = chapterId;
+                        selectedKnowledge = chapterId; // 设置selectedKnowledge变量
+                        startQuiz();
+                    });
+                });
+            } catch (error) {
+                console.error('加载二级课程失败:', error);
+                alert('加载二级课程失败，请检查服务器连接！');
+            }
+        }
+        
+        async function loadKnowledgeByChapter(chapterId) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/knowledge?chapter_id=${chapterId}`);
+                const knowledgeItems = await response.json();
+                
+                const knowledgeList = document.getElementById('knowledge-list');
+                knowledgeList.innerHTML = '';
+                
+                if (knowledgeItems.length === 0) {
+                    knowledgeList.innerHTML = '<p style="text-align: center; color: #999;">暂无知识点</p>';
+                    return;
+                }
+                
+                // 生成知识点列表
+                knowledgeItems.forEach(item => {
+                    const knowledgeItem = document.createElement('div');
+                    knowledgeItem.className = 'knowledge-item';
+                    knowledgeItem.style.background = 'rgba(10, 25, 47, 0.7)';
+                    knowledgeItem.style.border = '1px solid #3b82f6';
+                    knowledgeItem.style.borderRadius = '8px';
+                    knowledgeItem.style.padding = '15px';
+                    knowledgeItem.style.marginBottom = '15px';
+                    knowledgeItem.style.boxShadow = '0 4px 12px rgba(59, 130, 246, 0.3), 0 0 20px rgba(59, 130, 246, 0.2)';
+                    
+                    knowledgeItem.innerHTML = `
+                        <h4 style="color: #93c5fd; margin-top: 0;">${item.title}</h4>
+                        <p style="color: #e2e8f0; margin: 10px 0;">${item.content.substring(0, 100)}${item.content.length > 100 ? '...' : ''}</p>
+                        <div class="knowledge-actions" style="margin-top: 15px;">
+                            <button class="btn btn-info edit-knowledge-btn" data-knowledge-id="${item.id}">编辑</button>
+                            <button class="btn btn-danger delete-knowledge-btn" data-knowledge-id="${item.id}">删除</button>
+                        </div>
+                    `;
+                    
+                    knowledgeList.appendChild(knowledgeItem);
+                });
+                
+                // 添加编辑知识点按钮事件监听
+                document.querySelectorAll('.edit-knowledge-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const knowledgeId = parseInt(this.getAttribute('data-knowledge-id'));
+                        editKnowledge(knowledgeId);
+                    });
+                });
+                
+                // 添加删除知识点按钮事件监听
+                document.querySelectorAll('.delete-knowledge-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const knowledgeId = parseInt(this.getAttribute('data-knowledge-id'));
+                        deleteKnowledge(knowledgeId);
+                    });
+                });
+            } catch (error) {
+                console.error('加载知识点失败:', error);
+                alert('加载知识点失败，请检查服务器连接！');
+            }
+        }
+        
+        // 知识库管理相关函数
+        async function loadKnowledgeBase() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/knowledge`);
+                const knowledgeItems = await response.json();
+                
+                const knowledgeList = document.getElementById('knowledge-list');
+                knowledgeList.innerHTML = '';
+                
+                if (knowledgeItems.length === 0) {
+                    knowledgeList.innerHTML = '<p style="text-align: center; color: #999;">暂无知识点</p>';
+                    return;
+                }
+                
+                // 生成知识点列表
+                knowledgeItems.forEach(item => {
+                    const knowledgeItem = document.createElement('div');
+                    knowledgeItem.className = 'knowledge-item';
+                    knowledgeItem.style.background = 'rgba(10, 25, 47, 0.7)';
+                    knowledgeItem.style.border = '1px solid #3b82f6';
+                    knowledgeItem.style.borderRadius = '8px';
+                    knowledgeItem.style.padding = '15px';
+                    knowledgeItem.style.marginBottom = '15px';
+                    knowledgeItem.style.boxShadow = '0 4px 12px rgba(59, 130, 246, 0.3), 0 0 20px rgba(59, 130, 246, 0.2)';
+                    
+                    knowledgeItem.innerHTML = `
+                        <h4 style="color: #93c5fd; margin-top: 0;">${item.title}</h4>
+                        <p style="color: #e2e8f0; margin: 10px 0;">${item.content.substring(0, 100)}${item.content.length > 100 ? '...' : ''}</p>
+                        <div class="knowledge-actions" style="margin-top: 15px;">
+                            <button class="btn btn-info edit-knowledge-btn" data-knowledge-id="${item.id}">编辑</button>
+                            <button class="btn btn-danger delete-knowledge-btn" data-knowledge-id="${item.id}">删除</button>
+                        </div>
+                    `;
+                    
+                    knowledgeList.appendChild(knowledgeItem);
+                });
+                
+                // 添加编辑知识点按钮事件监听
+                document.querySelectorAll('.edit-knowledge-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const knowledgeId = parseInt(this.getAttribute('data-knowledge-id'));
+                        editKnowledge(knowledgeId);
+                    });
+                });
+                
+                // 添加删除知识点按钮事件监听
+                document.querySelectorAll('.delete-knowledge-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const knowledgeId = parseInt(this.getAttribute('data-knowledge-id'));
+                        deleteKnowledge(knowledgeId);
+                    });
+                });
+            } catch (error) {
+                console.error('加载知识库失败:', error);
+                alert('加载知识库失败，请检查服务器连接！');
+            }
+        }
+        
+        function showKnowledgeForm() {
+            document.getElementById('knowledge-form').style.display = 'block';
+            document.getElementById('form-title').textContent = '添加知识点';
+            document.getElementById('knowledge-id').value = '';
+            document.getElementById('knowledge-title').value = '';
+            document.getElementById('knowledge-content').value = '';
+            document.getElementById('knowledge-category').value = '';
+            document.getElementById('knowledge-chapter-edit').value = '';
+            document.getElementById('knowledge-image').value = '';
+        }
+        
+        function hideKnowledgeForm() {
+            document.getElementById('knowledge-form').style.display = 'none';
+        }
+        
+        async function saveKnowledge() {
+            try {
+                const knowledgeId = parseInt(document.getElementById('knowledge-id').value);
+                const title = document.getElementById('knowledge-title').value.trim();
+                const content = document.getElementById('knowledge-content').value.trim();
+                const category = document.getElementById('knowledge-category').value.trim();
+                const chapterId = parseInt(document.getElementById('knowledge-chapter-edit').value);
+                const image = document.getElementById('knowledge-image').value.trim();
+                
+                if (!title || !content || !category) {
+                    alert('请填写完整的知识点信息！');
+                    return;
+                }
+                
+                const knowledgeData = {
+                    title,
+                    content,
+                    category,
+                    chapter_id: chapterId || null,
+                    image: image || null
+                };
+                
+                let response;
+                if (knowledgeId) {
+                    // 更新现有知识点
+                    response = await fetch(`${API_BASE_URL}/api/knowledge/${knowledgeId}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(knowledgeData)
+                    });
+                } else {
+                    // 创建新知识点
+                    response = await fetch(`${API_BASE_URL}/api/knowledge`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(knowledgeData)
+                    });
+                }
+                
+                const result = await response.json();
+                if (result.status === 'success') {
+                    alert(knowledgeId ? '知识点更新成功！' : '知识点添加成功！');
+                    hideKnowledgeForm();
+                    loadKnowledgeBase();
+                } else {
+                    alert('操作失败: ' + result.message);
+                }
+            } catch (error) {
+                console.error('保存知识点失败:', error);
+                alert('保存知识点失败，请检查服务器连接！');
+            }
+        }
+        
+        // 编辑章节
+        async function editChapter(chapterId) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/chapters/${chapterId}`);
+                const chapter = await response.json();
+                
+                document.getElementById('chapter-id').value = chapter.id;
+                document.getElementById('chapter-name').value = chapter.name;
+                
+                // 加载所有一级章节作为父章节选项
+                const parentChapterSelect = document.getElementById('parent-chapter');
+                parentChapterSelect.innerHTML = '<option value="">无（一级章节）</option>';
+                
+                const allChaptersResponse = await fetch(`${API_BASE_URL}/api/chapters`);
+                const allChapters = await allChaptersResponse.json();
+                const level1Chapters = allChapters.filter(c => c.level === 1 && c.id !== chapter.id);
+                
+                level1Chapters.forEach(c => {
+                    const option = document.createElement('option');
+                    option.value = c.id;
+                    option.textContent = c.name;
+                    if (c.id === chapter.parent_id) {
+                        option.selected = true;
+                    }
+                    parentChapterSelect.appendChild(option);
+                });
+                
+                // 显示章节编辑表单
+                document.getElementById('chapter-form-title').textContent = '编辑章节';
+                document.getElementById('chapter-form').style.display = 'block';
+                document.getElementById('parent-chapter-group').style.display = 'block';
+            } catch (error) {
+                console.error('编辑章节失败:', error);
+                alert('编辑章节失败，请检查服务器连接！');
+            }
+        }
+        
+        // 删除章节
+        async function deleteChapter(chapterId) {
+            if (confirm('确定要删除这个章节吗？删除后将无法恢复！')) {
+                try {
+                    const response = await fetch(`${API_BASE_URL}/api/chapters/${chapterId}`, {
+                        method: 'DELETE'
+                    });
+                    
+                    const result = await response.json();
+                    if (result.status === 'success') {
+                        alert('章节删除成功！');
+                        loadChapters();
+                    } else {
+                        alert('删除失败: ' + result.message);
+                    }
+                } catch (error) {
+                    console.error('删除章节失败:', error);
+                    alert('删除章节失败，请检查服务器连接！');
+                }
+            }
+        }
+        
+        // 添加子课程
+        function addSubchapter(parentId) {
+            document.getElementById('chapter-id').value = '';
+            document.getElementById('chapter-name').value = '';
+            document.getElementById('parent-chapter').value = parentId;
+            document.getElementById('chapter-form-title').textContent = '添加子课程';
+            document.getElementById('chapter-form').style.display = 'block';
+            document.getElementById('parent-chapter-group').style.display = 'block';
+        }
+        
+        // 编辑知识点
+        async function editKnowledge(knowledgeId) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/knowledge/${knowledgeId}`);
+                const knowledge = await response.json();
+                
+                document.getElementById('knowledge-id').value = knowledge.id;
+                document.getElementById('knowledge-title').value = knowledge.title;
+                document.getElementById('knowledge-content').value = knowledge.content;
+                document.getElementById('knowledge-category').value = knowledge.category;
+                document.getElementById('knowledge-chapter-edit').value = knowledge.chapter_id || '';
+                document.getElementById('knowledge-image').value = knowledge.image || '';
+                
+                document.getElementById('form-title').textContent = '编辑知识点';
+                document.getElementById('knowledge-form').style.display = 'block';
+            } catch (error) {
+                console.error('编辑知识点失败:', error);
+                alert('编辑知识点失败，请检查服务器连接！');
+            }
+        }
+        
+        // 删除知识点
+        async function deleteKnowledge(knowledgeId) {
+            if (confirm('确定要删除这个知识点吗？删除后将无法恢复！')) {
+                try {
+                    const response = await fetch(`${API_BASE_URL}/api/knowledge/${knowledgeId}`, {
+                        method: 'DELETE'
+                    });
+                    
+                    const result = await response.json();
+                    if (result.status === 'success') {
+                        alert('知识点删除成功！');
+                        loadKnowledgeBase();
+                    } else {
+                        alert('删除失败: ' + result.message);
+                    }
+                } catch (error) {
+                    console.error('删除知识点失败:', error);
+                    alert('删除知识点失败，请检查服务器连接！');
+                }
+            }
+        }
+        
+        // 初始化
+        function init() {
+            initUser();
+            initScoreData();
+            // 确保所有DOM元素都已加载
+            setTimeout(initEventListeners, 100);
+        }
+        
+        // 页面加载完成后初始化
+        window.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
