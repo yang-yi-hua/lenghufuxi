@@ -1,0 +1,67 @@
+# 音效文件说明
+
+## 重要说明：
+系统已配置为优先使用本地音效文件，如果本地音效文件不存在，会自动使用在线备用音效。因此，即使没有本地音效文件，系统也能正常工作。
+
+## 音效文件配置：
+
+### 方式一：使用本地音效文件（推荐用于离线环境）
+请将以下音效文件放到 `shengyin` 文件夹中：
+
+1. **button.mp3** - 按钮点击音效
+   - 用于所有按钮的点击操作
+   - 建议使用短促的点击音效
+
+2. **correct.mp3** - 答题正确音效
+   - 用于选择正确答案时播放
+   - 建议使用欢快的成功音效
+
+3. **wrong.mp3** - 答题错误音效
+   - 用于选择错误答案时播放
+   - 建议使用遗憾的错误音效
+
+4. **next.mp3** - 下一题音效
+   - 用于点击"下一题"按钮时播放
+   - 建议使用提示音效
+
+5. **submit.mp3** - 提交成功音效
+   - 用于提交答案后播放
+   - 建议使用庆祝/成功音效
+
+### 方式二：使用在线备用音效（默认）
+如果本地没有音效文件，系统会自动使用以下在线音效：
+- 按钮点击：https://assets.mixkit.co/sfx/preview/mixkit-quick-mouse-click-1153.mp3
+- 答题正确：https://assets.mixkit.co/sfx/preview/mixkit-correct-answer-tone-2870.mp3
+- 答题错误：https://assets.mixkit.co/sfx/preview/mixkit-wrong-answer-fail-notification-946.mp3
+- 下一题：https://assets.mixkit.co/sfx/preview/mixkit-game-ball-tap-2073.mp3
+- 提交成功：https://assets.mixkit.co/sfx/preview/mixkit-winning-chimes-2015.mp3
+
+## 音效文件要求：
+
+- 格式：MP3
+- 时长：建议1-3秒
+- 音量：适中，不要过大
+- 文件大小：建议每个文件小于100KB
+
+## 音效文件来源推荐：
+
+可以从以下网站获取免费音效：
+- Mixkit (https://mixkit.co/free-sound-effects/)
+- Freesound (https://freesound.org/)
+- Zapsplat (https://www.zapsplat.com/)
+
+## 部署说明：
+
+1. **在线环境**：直接使用即可，系统会自动使用在线备用音效
+2. **离线环境**：将本地音效文件放到shengyin文件夹中
+3. **复制到其他终端**：
+   - 如果使用在线音效：只需复制项目文件夹即可
+   - 如果使用本地音效：需要同时复制shengyin文件夹及其中的音效文件
+
+## 注意事项：
+
+1. 如果使用本地音效，确保音效文件名完全匹配（区分大小写）
+2. 文件必须是MP3格式
+3. 如果缺少某个音效文件，系统会自动使用在线备用音效
+4. 在线备用音效需要网络连接才能播放
+5. 建议将整个项目文件夹（包括shengyin文件夹）一起复制到其他终端使用

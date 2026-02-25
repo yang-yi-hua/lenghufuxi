@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>编辑知识点</title>
+    <link rel="stylesheet" href="quiz-style.css">
+    <style>
+        body {
+            background-color: #0f172a;
+            color: #e2e8f0;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: rgba(15, 23, 42, 0.8);
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+            border: 1px solid #3b82f6;
+        }
+        h1 {
+            color: #3b82f6;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #93c5fd;
+        }
+        input[type="text"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 10px;
+            background-color: rgba(30, 41, 59, 0.8);
+            border: 1px solid #3b82f6;
+            border-radius: 4px;
+            color: #e2e8f0;
+            font-size: 16px;
+        }
+        textarea {
+            height: 150px;
+            resize: vertical;
+        }
+        .form-actions {
+            margin-top: 30px;
+            text-align: center;
+        }
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 0 10px;
+        }
+        .btn-primary {
+            background-color: #3b82f6;
+            color: white;
+        }
+        .btn-secondary {
+            background-color: #64748b;
+            color: white;
+        }
+        .btn-primary:hover {
+            background-color: #2563eb;
+        }
+        .btn-secondary:hover {
+            background-color: #475569;
+        }
+        .error-message {
+            color: #ef4444;
+            margin-top: 10px;
+            text-align: center;
+        }
+        .success-message {
+            color: #10b981;
+            margin-top: 10px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>编辑知识点</h1>
+        
+        <form id="knowledge-form">
+            <input type="hidden" id="knowledge-id" value="">
+            
+            <div class="form-group">
+                <label for="knowledge-title">标题：</label>
+                <input type="text" id="knowledge-title" placeholder="知识点标题" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="knowledge-content">内容：</label>
+                <textarea id="knowledge-content" placeholder="知识点详细内容" required></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="knowledge-category">分类：</label>
+                <input type="text" id="knowledge-category" placeholder="知识点分类" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="knowledge-chapter">所属章节：</label>
+                <select id="knowledge-chapter">
+                    <option value="">未分类</option>
+                    <!-- 章节选项将通过JavaScript动态生成 -->
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="knowledge-image">图片URL：</label>
+                <input type="text" id="knowledge-image" placeholder="知识点图片URL（可选）">
+            </div>
+            
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">保存</button>
+                <button type="button" class="btn btn-secondary" onclick="goBack()">取消</button>
+            </div>
+        </form>
+        
+        <div id="message" class="error-message"></div>
+    </div>
+    
+    <script>
+        // 服务器API地址 - 使用与主页面相同的端口
+        const API_BASE_URL = 'http://' + window.location.hostname + ':9000';
+        
+        // 获取URL参数
+        function getUrlParam(name) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(name);
+        }
+        
+        // 加载章节列表
+        async function loadChapters() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/chapters`);
+                const chaptersData = await response.json();
+                
+                const chapterSelect = document.getElementById('knowledge-chapter');
+                
+                if (chaptersData.length === 0) {
+                    return;
+                }
+                
+                // 生成章节选项
+                chaptersData.forEach(chapter => {
+                    const option = document.createElement('option');
+                    option.value = chapter.id;
+                    option.textContent = chapter.name;
+                    chapterSelect.appendChild(option);
+                });
+            } catch (error) {
+                console.error('加载章节失败:', error);
+            }
+        }
+        
+        // 加载知识点数据
+        async function loadKnowledgeData() {
+            const knowledgeId = getUrlParam('id');
+            if (!knowledgeId) {
+                document.getElementById('message').textContent = '知识点ID不存在！';
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/knowledge/${knowledgeId}`);
+                const knowledgeData = await response.json();
+                
+                if (knowledgeData.error) {
+                    document.getElementById('message').textContent = '知识点不存在！';
+                    return;
+                }
+                
+                // 填充表单
+                document.getElementById('knowledge-id').value = knowledgeData.id;
+                document.getElementById('knowledge-title').value = knowledgeData.title;
+                document.getElementById('knowledge-content').value = knowledgeData.content;
+                document.getElementById('knowledge-category').value = knowledgeData.category;
+                document.getElementById('knowledge-image').value = knowledgeData.image || '';
+                document.getElementById('knowledge-chapter').value = knowledgeData.chapter_id || '';
+            } catch (error) {
+                console.error('加载知识点失败:', error);
+                document.getElementById('message').textContent = '加载知识点失败，请检查服务器连接！';
+            }
+        }
+        
+        // 保存知识点
+        async function saveKnowledge(e) {
+            e.preventDefault();
+            
+            const knowledgeId = document.getElementById('knowledge-id').value;
+            const title = document.getElementById('knowledge-title').value.trim();
+            const content = document.getElementById('knowledge-content').value.trim();
+            const category = document.getElementById('knowledge-category').value.trim();
+            const image = document.getElementById('knowledge-image').value.trim();
+            const chapterId = document.getElementById('knowledge-chapter').value;
+            
+            if (!title || !content || !category) {
+                document.getElementById('message').textContent = '请填写完整的知识点信息！';
+                return;
+            }
+            
+            const knowledgeData = {
+                title,
+                content,
+                category,
+                image,
+                chapter_id: chapterId ? parseInt(chapterId) : null
+            };
+            
+            try {
+                let response;
+                if (knowledgeId) {
+                    // 更新知识点
+                    response = await fetch(`${API_BASE_URL}/api/knowledge/${knowledgeId}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(knowledgeData)
+                    });
+                } else {
+                    // 添加知识点
+                    response = await fetch(`${API_BASE_URL}/api/knowledge`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(knowledgeData)
+                    });
+                }
+                
+                // 检查响应状态
+                console.log('Response status:', response.status);
+                
+                // 尝试解析响应
+                try {
+                    const result = await response.json();
+                    console.log('Response data:', result);
+                    
+                    if (result.error) {
+                        alert('保存知识点失败: ' + result.error);
+                    } else {
+                        alert('知识点保存成功！');
+                        goBack();
+                    }
+                } catch (jsonError) {
+                    console.error('解析JSON失败:', jsonError);
+                    // 尝试获取原始响应文本
+                    const text = await response.text();
+                    console.log('Response text:', text);
+                    alert('保存知识点成功！');
+                    goBack();
+                }
+            } catch (error) {
+                console.error('保存知识点失败:', error);
+                alert('保存知识点失败，请检查服务器连接！');
+            }
+        }
+        
+        // 返回上一页
+        function goBack() {
+            window.history.back();
+        }
+        
+        // 初始化
+        function init() {
+            loadChapters();
+            loadKnowledgeData();
+            document.getElementById('knowledge-form').addEventListener('submit', saveKnowledge);
+        }
+        
+        // 页面加载完成后初始化
+        window.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
